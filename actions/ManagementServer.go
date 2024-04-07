@@ -1,4 +1,4 @@
-package model
+package actions
 
 type ManagementServer struct {
 	Name                        string
