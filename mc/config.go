@@ -11,15 +11,10 @@ const mcTokenKey = "MC_TOKEN"
 const mcHostKey = "MC_HOST"
 const mcClientIdKey = "MC_CLIENT_ID"
 const mcSecretKey = "MC_SECRET"
+const mcCallbackUriKey = "MC_CALLBACK_URI"
 
 type Config struct {
 	stdinScanner *bufio.Scanner
-}
-
-func (c *Config) Init() {
-	addr := c.PromptForHostname()
-	clientId := c.PromptForClientId()
-	secret := c.PromptForSecret()
 }
 
 func (c *Config) DetectApiToken() string {
@@ -36,6 +31,10 @@ func (c *Config) DetectClientId() string {
 
 func (c *Config) DetectClientSecret() string {
 	return os.Getenv(mcSecretKey)
+}
+
+func (c *Config) DetectCallbackURI() string {
+	return os.Getenv(mcCallbackUriKey)
 }
 
 func (c *Config) PromptForHostname() string {
