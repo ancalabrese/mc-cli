@@ -9,11 +9,17 @@ import (
 
 const mcTokenKey = "MC_TOKEN"
 const mcHostKey = "MC_HOST"
-const mcClientId = "MC_CLIENT_ID"
-const mcSecret = "MC_SECRET"
+const mcClientIdKey = "MC_CLIENT_ID"
+const mcSecretKey = "MC_SECRET"
 
 type Config struct {
 	stdinScanner *bufio.Scanner
+}
+
+func (c *Config) Init() {
+	addr := c.PromptForHostname()
+	clientId := c.PromptForClientId()
+	secret := c.PromptForSecret()
 }
 
 func (c *Config) DetectApiToken() string {
@@ -24,37 +30,47 @@ func (c *Config) DetectHost() string {
 	return os.Getenv(mcHostKey)
 }
 
+func (c *Config) DetectClientId() string {
+	return os.Getenv(mcClientIdKey)
+}
+
+func (c *Config) DetectClientSecret() string {
+	return os.Getenv(mcSecretKey)
+}
+
 func (c *Config) PromptForHostname() string {
-	host := os.Getenv(mcHostKey)
+	host := c.DetectHost()
 	if host != "" {
 		return host
 	}
 
+	//TODO: sanitize
 	host = c.scanLine()
 
-	return ""
+	return host
 }
 
 func (c *Config) PromptForClientId() string {
-	host := os.Getenv(mcClientId)
-	if host != "" {
-		return host
+	clientId := c.DetectClientId()
+	if clientId != "" {
+		return clientId
 	}
+	//TODO: sanitize
+	clientId = c.scanLine()
 
-	host = c.scanLine()
-
-	return ""
+	return clientId
 }
 
 func (c *Config) PromptForSecret() string {
-	host := os.Getenv(mcSecret)
-	if host != "" {
-		return host
+	secret := c.DetectClientSecret()
+	if secret != "" {
+		return secret
 	}
 
-	host = c.scanLine()
+	//TODO: sanitize
+	secret = c.scanLine()
 
-	return ""
+	return secret
 }
 
 func (c *Config) scanLine() string {

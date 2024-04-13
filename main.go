@@ -1,11 +1,16 @@
 package main
 
-import "flag"
+import (
+	"flag"
+
+	"github.com/ancalabrese/mc-cli/mc"
+)
 
 var (
 	deviceId string
 )
 
 func main() {
-	flag.StringVar(&deviceId, "d", "", "")
+	config := &mc.Config{}
+
 }
