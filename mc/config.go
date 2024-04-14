@@ -2,111 +2,186 @@ package mc
 
 import (
 	"bufio"
+	"errors"
 	"os"
 
 	"github.com/ancalabrese/mc-cli/utils"
+	"github.com/zalando/go-keyring"
 )
 
-const mcTokenKey = "MC_TOKEN"
-const mcHostKey = "MC_HOST"
-const mcClientIdKey = "MC_CLIENT_ID"
-const mcSecretKey = "MC_SECRET"
-const mcCallbackUriKey = "MC_CALLBACK_URI"
+const (
+	mcTokenKey       = "MC_TOKEN"
+	mcHostKey        = "MC_HOST"
+	mcClientIdKey    = "MC_CLIENT_ID"
+	mcSecretKey      = "MC_SECRET"
+	mcCallbackUriKey = "MC_CALLBACK_URI"
+)
 
-type Config struct {
-	stdinScanner *bufio.Scanner
+type ConfigKey string
+type ConfigValue string
+type DefaultValue string
+
+type Configuration interface {
+	Write() error
+	Get(ConfigKey, DefaultValue) error
+	Load() error
 }
 
-func NewConfig() Config {
-	c := Config{}
+// Config reppresents a persistent configuration
+type Config struct {
+	Authentication Configuration
+}
 
-	c.PromptForHostname()
-	c.PromptForClientId()
-	c.PromptForSecret()
-	c.PromptForCallbackUri()
+func NewConfig() *Config {
+	c := &Config{
+		Authentication: &AuthConfig{},
+	}
 
 	return c
 }
 
-func (c *Config) DetectApiToken() string {
-	return os.Getenv(mcTokenKey)
+var AuthNotInitializedError = errors.New("AuthConfig not initialized")
+
+type AuthConfig struct {
+	c *Config
+
+	host           string
+	clientId       string
+	clientSecret   string
+	callbackURL    string
+	keyringService string
+	stdinScanner   *bufio.Scanner
 }
 
-func (c *Config) DetectHost() string {
-	return os.Getenv(mcHostKey)
-}
-
-func (c *Config) DetectClientId() string {
-	return os.Getenv(mcClientIdKey)
-}
-
-func (c *Config) DetectClientSecret() string {
-	return os.Getenv(mcSecretKey)
-}
-
-func (c *Config) DetectCallbackURI() string {
-	return os.Getenv(mcCallbackUriKey)
-}
-
-func (c *Config) PromptForHostname() string {
-	host := c.DetectHost()
-	if host != "" {
-		return host
+func NewAuthConfig() *AuthConfig {
+	return &AuthConfig{
+		keyringService: "mcUtility",
 	}
-	println("Mobicontrol server hast name:")
 
-	//TODO: sanitize
-	host = c.scanLine()
+}
 
+func (ac *AuthConfig) Write() error {
+	if !ac.isInitialized() {
+		return AuthNotInitializedError
+	}
+
+	err := os.Setenv(mcHostKey, ac.host)
+	err = os.Setenv(mcClientIdKey, ac.clientId)
+	err = os.Setenv(mcSecretKey, ac.clientSecret)
+	err = os.Setenv(mcCallbackUriKey, ac.callbackURL)
+
+	err = keyring.Set(ac.keyringService, mcHostKey, ac.host)
+	err = keyring.Set(ac.keyringService, mcClientIdKey, ac.clientId)
+	err = keyring.Set(ac.keyringService, mcSecretKey, ac.clientSecret)
+	err = keyring.Set(ac.keyringService, mcCallbackUriKey, ac.callbackURL)
+
+	return err
+}
+
+func (ac *AuthConfig) Get(k ConfigKey, v DefaultValue) error {
+	return nil
+}
+
+func (ac *AuthConfig) Load() error {
+	ac.host = ac.DetectOrPromptForHostname()
+	ac.clientId = ac.DetectOrPromptForClientId()
+	ac.clientSecret = ac.DetectOrPromptForClientSecret()
+	ac.callbackURL = ac.DetectOrPromptForCallbackURL()
+
+	return nil
+}
+
+func (ac *AuthConfig) DetectHost() (string, error) {
+	host := os.Getenv(mcHostKey)
+	if host != "" {
+		return host, nil
+	}
+	return keyring.Get(ac.keyringService, mcHostKey)
+}
+
+func (ac *AuthConfig) DetectClientId() (string, error) {
+	clientId := os.Getenv(mcClientIdKey)
+	if clientId != "" {
+		return clientId, nil
+	}
+
+	return keyring.Get(ac.keyringService, mcClientIdKey)
+}
+
+func (ac *AuthConfig) DetectClientSecret() (string, error) {
+	secret := os.Getenv(mcSecretKey)
+	if secret != "" {
+		return secret, nil
+	}
+	return keyring.Get(ac.keyringService, mcSecretKey)
+}
+
+func (ac *AuthConfig) DetectCallbackURI() (string, error) {
+	url := os.Getenv(mcCallbackUriKey)
+	if url != "" {
+		return url, nil
+	}
+	return keyring.Get(ac.keyringService, mcCallbackUriKey)
+}
+
+func (ac *AuthConfig) DetectOrPromptForHostname() string {
+	host, err := ac.DetectHost()
+	if err != nil {
+		println("Mobicontrol server host name:")
+
+		//TODO: sanitize
+		host = ac.scanLine()
+	}
 	return host
 }
 
-func (c *Config) PromptForClientId() string {
-	clientId := c.DetectClientId()
-	if clientId != "" {
-		return clientId
+func (ac *AuthConfig) DetectOrPromptForClientId() string {
+	clientId, err := ac.DetectClientId()
+	if err != nil {
+		println("Mobicontrol client id:")
+
+		//TODO: sanitize
+		clientId = ac.scanLine()
 	}
-	println("Mobicontrol API client ID:")
-
-	//TODO: sanitize
-	clientId = c.scanLine()
-
 	return clientId
 }
 
-func (c *Config) PromptForSecret() string {
-	secret := c.DetectClientSecret()
-	if secret != "" {
-		return secret
+func (ac *AuthConfig) DetectOrPromptForClientSecret() string {
+	secret, err := ac.DetectClientSecret()
+	if err != nil {
+		println("Mobicontrol client secret:")
+
+		//TODO: sanitize
+		secret = ac.scanLine()
 	}
-	println("Mobicontrol API secret:")
-
-	//TODO: sanitize
-	secret = c.scanLine()
-
 	return secret
 }
 
-func (c *Config) PromptForCallbackUri() string {
-	url := c.DetectCallbackURI()
-	if url != "" {
-		return url
+func (ac *AuthConfig) DetectOrPromptForCallbackURL() string {
+	url, err := ac.DetectClientSecret()
+	if err != nil {
+		println("Mobicontrol client callback url: (default mcauth://callback)")
+
+		//TODO: sanitize
+		url = ac.scanLine()
+		if url == "" {
+			url = "mcauth://callback"
+		}
 	}
-	println("Mobicontrol API client callback URI (default: mcauth://callback):")
-
-	//TODO: sanitize
-	url = c.scanLine()
-
 	return url
 }
 
-func (c *Config) scanLine() string {
-	if c.stdinScanner == nil {
-		c.stdinScanner = bufio.NewScanner(os.Stdin)
+func (ac *AuthConfig) isInitialized() bool {
+	return ac.host != "" && ac.clientId != "" && ac.clientSecret != "" && ac.callbackURL != ""
+}
+
+func (ac *AuthConfig) scanLine() string {
+	if ac.stdinScanner == nil {
+		ac.stdinScanner = bufio.NewScanner(os.Stdin)
 	}
 
 	var line string
-	scanner := c.stdinScanner
+	scanner := ac.stdinScanner
 	if scanner.Scan() {
 		line = scanner.Text()
 	}
