@@ -1,9 +1,7 @@
 package main
 
 import (
-	"flag"
-
-	"github.com/ancalabrese/mc-cli/mc"
+	"github.com/ancalabrese/mc-cli/mc/config"
 )
 
 var (
@@ -11,6 +9,11 @@ var (
 )
 
 func main() {
-	config := &mc.Config{}
-
+	c := config.NewConfig()
+	c.Authentication.Load()
+	err := c.Authentication.Write()
+	if err != nil {
+		panic(err)
+	}
+	println(c.Authentication)
 }
