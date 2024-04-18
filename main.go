@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ancalabrese/mc-cli/mc/auth"
 	"github.com/ancalabrese/mc-cli/mc/config"
 )
 
@@ -11,9 +12,9 @@ var (
 func main() {
 	c := config.NewConfig()
 	c.Authentication.Load()
+	auth.RequestAuthCode(c)
 	err := c.Authentication.Write()
 	if err != nil {
 		panic(err)
 	}
-	println(c.Authentication)
 }
