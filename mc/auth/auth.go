@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	url "net/url"
+	"time"
 
 	"github.com/ancalabrese/mc-cli/mc/config"
 	"github.com/ancalabrese/mc-cli/utils"
@@ -74,12 +77,32 @@ func RequestAuthCode(c *config.Config) error {
 	return nil
 }
 
-func getAccessToken() {}
-
 func setAuthorizationType(responseType AuthorizationResponseType) oauth2.AuthCodeOption {
 	if responseType == AuthResponseTypeCode {
 		return oauth2.SetAuthURLParam("response_type", "code")
 	} else {
 		return oauth2.SetAuthURLParam("response_type", "token")
 	}
+}
+
+func startAuthenticationServer(ctx context.Context) {
+	s := http.Server{}
+
+	go func() {
+		if ctx.Err() != nil {
+			return
+		}
+
+		if err := s.ListenAndServe(); err != nil {
+			utils.Check(err)
+		}
+	}()
+
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		err := s.Shutdown(shutdownCtx)
+		utils.Check(err)
+	}()
 }
