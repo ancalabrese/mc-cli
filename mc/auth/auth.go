@@ -20,10 +20,8 @@ const (
 
 type AuthorizationResponseType int
 
-const (
-	AuthResponseTypeCode AuthorizationResponseType = iota
-	AuthResponseTypeToken
-)
+var AuthResponseTypeCode oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "code")
+var AuthResponseTypeToken oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "token")
 
 func RequestAuthCode(c *config.Config) error {
 	addr, err := c.Authentication.Get(config.McHostKey)
@@ -64,7 +62,7 @@ func RequestAuthCode(c *config.Config) error {
 	authCodeUrl := oauthConfig.AuthCodeURL(
 		oauth2.GenerateVerifier(),
 		oauth2.AccessTypeOffline,
-		setAuthorizationType(AuthResponseTypeCode))
+		AuthResponseTypeCode)
 
 	// For some reasons redirect_url breaks Mobicontrol Authorization page
 	parsedUrl, err := url.Parse(authCodeUrl)
@@ -75,14 +73,6 @@ func RequestAuthCode(c *config.Config) error {
 
 	fmt.Printf("Login at:\n%s\n", parsedUrl.String())
 	return nil
-}
-
-func setAuthorizationType(responseType AuthorizationResponseType) oauth2.AuthCodeOption {
-	if responseType == AuthResponseTypeCode {
-		return oauth2.SetAuthURLParam("response_type", "code")
-	} else {
-		return oauth2.SetAuthURLParam("response_type", "token")
-	}
 }
 
 func startAuthenticationServer(ctx context.Context) {
