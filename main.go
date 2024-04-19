@@ -8,10 +8,6 @@ import (
 	"github.com/ancalabrese/mc-cli/mc/config"
 )
 
-var (
-	deviceId string
-)
-
 func main() {
 	c := config.NewConfig()
 	c.Authentication.Load()
