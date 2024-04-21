@@ -20,19 +20,18 @@ const (
 var AuthNotInitializedError = errors.New("AuthConfig not initialized")
 
 type AuthConfig struct {
-	host           string
-	clientId       string
-	clientSecret   string
-	callbackURL    string
-	keyringService string
-	stdinScanner   *bufio.Scanner
+	Host           string         `yaml:"host"`
+	ClientId       string         `yaml:"clientId"`
+	ClientSecret   string         `yaml:"omit"`
+	CallbackURL    string         `yaml:"callbackURL"`
+	keyringService string         `yaml:"omit"`
+	stdinScanner   *bufio.Scanner `yaml:"host"`
 }
 
 func NewAuthConfig() *AuthConfig {
 	return &AuthConfig{
 		keyringService: "mcUtility",
 	}
-
 }
 
 func (ac *AuthConfig) Write() error {
@@ -40,15 +39,15 @@ func (ac *AuthConfig) Write() error {
 		return AuthNotInitializedError
 	}
 
-	err := os.Setenv(McHostKey, ac.host)
-	err = os.Setenv(McClientIdKey, ac.clientId)
-	err = os.Setenv(McSecretKey, ac.clientSecret)
-	err = os.Setenv(McCallbackUriKey, ac.callbackURL)
+	err := os.Setenv(McHostKey, ac.Host)
+	err = os.Setenv(McClientIdKey, ac.ClientId)
+	err = os.Setenv(McSecretKey, ac.ClientSecret)
+	err = os.Setenv(McCallbackUriKey, ac.CallbackURL)
 
-	err = keyring.Set(ac.keyringService, McHostKey, ac.host)
-	err = keyring.Set(ac.keyringService, McClientIdKey, ac.clientId)
-	err = keyring.Set(ac.keyringService, McSecretKey, ac.clientSecret)
-	err = keyring.Set(ac.keyringService, McCallbackUriKey, ac.callbackURL)
+	err = keyring.Set(ac.keyringService, McHostKey, ac.Host)
+	err = keyring.Set(ac.keyringService, McClientIdKey, ac.ClientId)
+	err = keyring.Set(ac.keyringService, McSecretKey, ac.ClientSecret)
+	err = keyring.Set(ac.keyringService, McCallbackUriKey, ac.CallbackURL)
 
 	return err
 }
@@ -62,10 +61,10 @@ func (ac *AuthConfig) Get(k ConfigKey) (string, error) {
 }
 
 func (ac *AuthConfig) Load() error {
-	ac.host = ac.DetectOrPromptForHostname()
-	ac.clientId = ac.DetectOrPromptForClientId()
-	ac.clientSecret = ac.DetectOrPromptForClientSecret()
-	ac.callbackURL = ac.DetectOrPromptForCallbackURL()
+	ac.Host = ac.DetectOrPromptForHostname()
+	ac.ClientId = ac.DetectOrPromptForClientId()
+	ac.ClientSecret = ac.DetectOrPromptForClientSecret()
+	ac.CallbackURL = ac.DetectOrPromptForCallbackURL()
 
 	return nil
 }
@@ -151,7 +150,7 @@ func (ac *AuthConfig) DetectOrPromptForCallbackURL() string {
 }
 
 func (ac *AuthConfig) isInitialized() bool {
-	return ac.host != "" && ac.clientId != "" && ac.clientSecret != "" && ac.callbackURL != ""
+	return ac.Host != "" && ac.ClientId != "" && ac.ClientSecret != "" && ac.CallbackURL != ""
 }
 
 func (ac *AuthConfig) scanLine() string {
