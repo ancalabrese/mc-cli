@@ -1,10 +1,13 @@
 package utils
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 func Check(err error) {
 	if err != nil {
-		println("ERROR: %w", err)
+		fmt.Println("ERROR: " + err.Error())
 		os.Exit(1)
 	}
 }
