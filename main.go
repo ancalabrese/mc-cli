@@ -14,11 +14,11 @@ import (
 func main() {
 	ctx := context.Background()
 
-	loggerOptions := hclog.LoggerOptions{
+	loggerOptions := &hclog.LoggerOptions{
 		Name:  "mc-cli",
 		Level: hclog.Debug,
 	}
-	log := hclog.New(&loggerOptions)
+	log := hclog.New(loggerOptions)
 
 	c := config.NewConfig()
 	c.Authentication.Load()
