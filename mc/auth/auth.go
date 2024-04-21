@@ -7,9 +7,9 @@ import (
 	url "net/url"
 	"time"
 
-	"github.com/ancalabrese/mc-cli/mc/auth/middleware"
 	"github.com/ancalabrese/mc-cli/mc/config"
 	"github.com/ancalabrese/mc-cli/utils"
+	"github.com/hashicorp/go-hclog"
 	"golang.org/x/oauth2"
 )
 
@@ -24,29 +24,38 @@ type AuthorizationResponseType int
 var AuthResponseTypeCode oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "code")
 var AuthResponseTypeToken oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "token")
 
-type authSession struct {
+type AuthSession struct {
 	authState                 string
 	authorizationCompleteChan <-chan struct{}
 	authSever                 *http.Server
+	Logger                    hclog.Logger
 }
 
-func Login(ctx context.Context, c *config.Config) error {
+func NewAuthSession(l hclog.Logger) *AuthSession {
+	return &AuthSession{
+		Logger: l,
+	}
+
+}
+
+func (as *AuthSession) Login(ctx context.Context, c *config.Config) error {
 	authContext, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	authSession := &authSession{}
-	authSession.initAuthServer()
+	as.initAuthServer()
 
-	go authSession.startAuthenticationServer(authContext)
-	if err := RequestAuthCode(c); err != nil {
+	go as.startAuthenticationServer(authContext)
+	as.authState = oauth2.GenerateVerifier()
+
+	if err := as.requestAuthCode(c); err != nil {
 		return err
 	}
 
-	<-authSession.authorizationCompleteChan
+	<-as.authorizationCompleteChan
 	return nil
 }
 
-func RequestAuthCode(c *config.Config) error {
+func (as *AuthSession) requestAuthCode(c *config.Config) error {
 	addr, err := c.Authentication.Get(config.McHostKey)
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve auth address: %w", err)
@@ -83,10 +92,9 @@ func RequestAuthCode(c *config.Config) error {
 	}
 
 	authCodeUrl := oauthConfig.AuthCodeURL(
-		oauth2.GenerateVerifier(),
+		as.authState,
 		oauth2.AccessTypeOffline,
 		AuthResponseTypeCode)
-
 	// redirect_url breaks Mobicontrol authorization page
 	parsedUrl, err := url.Parse(authCodeUrl)
 	utils.Check(err)
@@ -98,19 +106,21 @@ func RequestAuthCode(c *config.Config) error {
 	return nil
 }
 
-func (as *authSession) initAuthServer() {
+func (as *AuthSession) initAuthServer() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/callback", middleware.AuthStateHandler(as.authState))
+	mux.HandleFunc("/host", as.AuthStateHandler())
 
 	as.authSever = &http.Server{
+		Addr:           "localhost:8080",
 		Handler:        mux,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
+		ErrorLog:       as.Logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 	}
 }
 
-func (as *authSession) startAuthenticationServer(ctx context.Context) {
+func (as *AuthSession) startAuthenticationServer(ctx context.Context) {
 	go func() {
 		utils.Check(ctx.Err())
 		err := as.authSever.ListenAndServe()
