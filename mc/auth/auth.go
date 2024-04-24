@@ -26,6 +26,7 @@ var AuthResponseTypeToken oauth2.AuthCodeOption = oauth2.SetAuthURLParam("respon
 
 type AuthSession struct {
 	authState                 string
+	oauthConfig               *oauth2.Config
 	authorizationCompleteChan <-chan struct{}
 	authSever                 *http.Server
 	Logger                    hclog.Logger
@@ -80,7 +81,7 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 	mcTokenUrl, err := url.JoinPath(addr, mcApiUrlPath, mcTokenUrlPath)
 	utils.Check(err)
 
-	oauthConfig := &oauth2.Config{
+	as.oauthConfig = &oauth2.Config{
 		ClientID:     clientId,
 		ClientSecret: clientSecret,
 		RedirectURL:  callbackUrl,
@@ -91,7 +92,7 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 		},
 	}
 
-	authCodeUrl := oauthConfig.AuthCodeURL(
+	authCodeUrl := as.oauthConfig.AuthCodeURL(
 		as.authState,
 		oauth2.AccessTypeOffline,
 		AuthResponseTypeCode)
