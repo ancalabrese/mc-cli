@@ -26,15 +26,18 @@ var AuthResponseTypeToken oauth2.AuthCodeOption = oauth2.SetAuthURLParam("respon
 
 type AuthSession struct {
 	authState                 string
+	authorizationCode         string
 	oauthConfig               *oauth2.Config
-	authorizationCompleteChan <-chan struct{}
+	tokenStore                TokenStore
+	authorizationCompleteChan chan *oauth2.Token
 	authSever                 *http.Server
 	Logger                    hclog.Logger
 }
 
 func NewAuthSession(l hclog.Logger) *AuthSession {
 	return &AuthSession{
-		Logger: l,
+		Logger:     l,
+		tokenStore: &KeyringTokenStore{},
 	}
 
 }
@@ -43,7 +46,7 @@ func (as *AuthSession) Login(ctx context.Context, c *config.Config) error {
 	authContext, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	as.initAuthServer()
+	as.initAuthServer(authContext)
 
 	go as.startAuthenticationServer(authContext)
 	as.authState = oauth2.GenerateVerifier()
@@ -94,8 +97,8 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 
 	authCodeUrl := as.oauthConfig.AuthCodeURL(
 		as.authState,
-		oauth2.AccessTypeOffline,
-		AuthResponseTypeCode)
+		oauth2.AccessTypeOffline)
+
 	// redirect_url breaks Mobicontrol authorization page
 	parsedUrl, err := url.Parse(authCodeUrl)
 	utils.Check(err)
@@ -107,9 +110,9 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 	return nil
 }
 
-func (as *AuthSession) initAuthServer() {
+func (as *AuthSession) initAuthServer(ctx context.Context) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/host", as.AuthStateHandler())
+	mux.HandleFunc("/host", as.AuthStateHandler(as.OAuthTokenExchangeHandler(ctx, as.authorizationCode)))
 
 	as.authSever = &http.Server{
 		Addr:           "localhost:8080",

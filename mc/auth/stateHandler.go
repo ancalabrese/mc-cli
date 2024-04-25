@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (as *AuthSession) AuthStateHandler() http.HandlerFunc {
+func (as *AuthSession) AuthStateHandler(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		got := r.URL.Query().Get("state")
 		want := as.authState
@@ -18,6 +18,6 @@ func (as *AuthSession) AuthStateHandler() http.HandlerFunc {
 		as.Logger.Debug("Valid auth state")
 		// State is unique for each auth request
 		as.authState = ""
-		return
+		next.ServeHTTP(w, r)
 	}
 }
