@@ -113,6 +113,7 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 func (as *AuthSession) initAuthServer(ctx context.Context) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/host", as.AuthStateHandler(as.OAuthTokenExchangeHandler(ctx, as.authorizationCode)))
+	mux.HandleFunc("/complete", as.AuthCompleteHandler)
 
 	as.authSever = &http.Server{
 		Addr:           "localhost:8080",
