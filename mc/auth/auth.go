@@ -30,6 +30,7 @@ type AuthSession struct {
 	oauthConfig               *oauth2.Config
 	tokenStore                TokenStore
 	authorizationCompleteChan chan *oauth2.Token
+	Token                     *oauth2.Token
 	authSever                 *http.Server
 	Logger                    hclog.Logger
 }
@@ -55,7 +56,7 @@ func (as *AuthSession) Login(ctx context.Context, c *config.Config) error {
 		return err
 	}
 
-	<-as.authorizationCompleteChan
+	as.Token = <-as.authorizationCompleteChan
 	return nil
 }
 
