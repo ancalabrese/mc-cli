@@ -48,11 +48,6 @@ type DataType struct {
 	// Boolean, Numeric, Text, DateTime, Enumerator, Date
 }
 
-type DeviceEnrollmentType struct {
-	//TODO:ENUM
-	// NotApplicable, Device, User
-}
-
 type DeviceFamilyType struct {
 	//TODO:ENUM
 	// Unknown, WindowsCE, Apple, WindowsDesktop, AndroidPlus, Scanner, WindowsPhone, Blackberry, Printer, WindowsRuntime, Linux
