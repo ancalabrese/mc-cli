@@ -36,8 +36,3 @@ type DataType struct {
 	//TODO:ENUM
 	// Boolean, Numeric, Text, DateTime, Enumerator, Date
 }
-
-type DeviceFamilyType struct {
-	//TODO:ENUM
-	// Unknown, WindowsCE, Apple, WindowsDesktop, AndroidPlus, Scanner, WindowsPhone, Blackberry, Printer, WindowsRuntime, Linux
-}
