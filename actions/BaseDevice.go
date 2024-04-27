@@ -48,11 +48,6 @@ const (
 
 // PlatformType
 
-type DeviceType struct {
-	//TODO:ENUM
-	// AndroidForWork, AndroidElm, AndroidKnox, AndroidPlus, AndroidGeneric, Ios, Mac, WindowsCE, WindowsDesktop, WindowsDesktopLegacy, WindowsPhone, WindowsRuntime, ZebraPrinter, Linux, WindowsHoloLens, WindowsXtHub, Unknown
-}
-
 type DataType struct {
 	//TODO:ENUM
 	// Boolean, Numeric, Text, DateTime, Enumerator, Date
