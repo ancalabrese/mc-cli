@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (as *AuthSession) OAuthTokenExchangeHandler(ctx context.Context) http.Handler {
+func (as *authSession) OAuthTokenExchangeHandler(ctx context.Context) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			t, err := as.oauthConfig.Exchange(ctx, as.authState)

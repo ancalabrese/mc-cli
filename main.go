@@ -23,8 +23,7 @@ func main() {
 	c := config.NewConfig()
 	c.Authentication.Load()
 
-	authSession := auth.NewAuthSession(log.Named("Auth"))
-	err := authSession.Login(ctx, c)
+	err := auth.Login(ctx, c, log)
 	utils.Check(err)
 
 	err = c.Authentication.Write()

@@ -2,7 +2,7 @@ package auth
 
 import "net/http"
 
-func (as *AuthSession) AuthorizationCodeHandler(next http.Handler) http.Handler {
+func (as *authSession) AuthorizationCodeHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c := r.URL.Query().Get("code")
 		if c == "" {

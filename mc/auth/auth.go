@@ -14,17 +14,16 @@ import (
 )
 
 const (
-	mcUrlAuthorizationPath = "oauth/authorize"
-	mcTokenUrlPath         = "token"
-	mcApiUrlPath           = "api"
+	oauthPath         = "oauth"
+	authorizationPath = "authorize"
+	tokenUrlPath      = "token"
+	apiPrefixUrlPath  = "api"
 )
-
-type AuthorizationResponseType int
 
 var AuthResponseTypeCode oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "code")
 var AuthResponseTypeToken oauth2.AuthCodeOption = oauth2.SetAuthURLParam("response_type", "token")
 
-type AuthSession struct {
+type authSession struct {
 	authState                 string
 	authorizationCode         string
 	oauthConfig               *oauth2.Config
@@ -35,24 +34,63 @@ type AuthSession struct {
 	Logger                    hclog.Logger
 }
 
-func NewAuthSession(l hclog.Logger) *AuthSession {
-	return &AuthSession{
-		Logger:     l,
-		tokenStore: &KeyringTokenStore{},
+func NewAuthSession(c *config.Config, l hclog.Logger) (*authSession, error) {
+	addr, err := c.Authentication.Get(config.McHostKey)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve auth address: %w", err)
 	}
 
+	clientId, err := c.Authentication.Get(config.McClientIdKey)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve client id: %w", err)
+	}
+
+	clientSecret, err := c.Authentication.Get(config.McSecretKey)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve client secret : %w", err)
+	}
+
+	callbackUrl, err := c.Authentication.Get(config.McCallbackUriKey)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve auth callback url: %w", err)
+	}
+
+	mcAuthUrl, err := url.JoinPath(addr, oauthPath, authorizationPath)
+	mcTokenUrl, err := url.JoinPath(addr, apiPrefixUrlPath, tokenUrlPath)
+	if err != nil {
+		return nil, err
+	}
+
+	as := &authSession{
+		Logger:     l,
+		tokenStore: &KeyringTokenStore{},
+		oauthConfig: &oauth2.Config{
+			ClientID:     clientId,
+			ClientSecret: clientSecret,
+			RedirectURL:  callbackUrl,
+			Endpoint: oauth2.Endpoint{
+				AuthURL:   mcAuthUrl,
+				TokenURL:  mcTokenUrl,
+				AuthStyle: oauth2.AuthStyleInParams,
+			},
+		},
+	}
+	return as, nil
 }
 
-func (as *AuthSession) Login(ctx context.Context, c *config.Config) error {
+func Login(ctx context.Context, c *config.Config, l hclog.Logger) error {
 	authContext, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	as, err := NewAuthSession(c, l)
+	utils.Check(err)
 
 	as.initAuthServer(authContext)
 
 	go as.startAuthenticationServer(authContext)
 	as.authState = oauth2.GenerateVerifier()
 
-	if err := as.requestAuthCode(c); err != nil {
+	if err := as.requestAuthCode(); err != nil {
 		return err
 	}
 
@@ -60,42 +98,7 @@ func (as *AuthSession) Login(ctx context.Context, c *config.Config) error {
 	return nil
 }
 
-func (as *AuthSession) requestAuthCode(c *config.Config) error {
-	addr, err := c.Authentication.Get(config.McHostKey)
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve auth address: %w", err)
-	}
-
-	clientId, err := c.Authentication.Get(config.McClientIdKey)
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve client id: %w", err)
-	}
-
-	clientSecret, err := c.Authentication.Get(config.McSecretKey)
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve client secret : %w", err)
-	}
-
-	callbackUrl, err := c.Authentication.Get(config.McCallbackUriKey)
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve auth callback url: %w", err)
-	}
-
-	mcAuthUrl, err := url.JoinPath(addr, mcUrlAuthorizationPath)
-	mcTokenUrl, err := url.JoinPath(addr, mcApiUrlPath, mcTokenUrlPath)
-	utils.Check(err)
-
-	as.oauthConfig = &oauth2.Config{
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
-		RedirectURL:  callbackUrl,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:   mcAuthUrl,
-			TokenURL:  mcTokenUrl,
-			AuthStyle: oauth2.AuthStyleInParams,
-		},
-	}
-
+func (as *authSession) requestAuthCode() error {
 	authCodeUrl := as.oauthConfig.AuthCodeURL(
 		as.authState,
 		oauth2.AccessTypeOffline)
@@ -111,9 +114,9 @@ func (as *AuthSession) requestAuthCode(c *config.Config) error {
 	return nil
 }
 
-func (as *AuthSession) initAuthServer(ctx context.Context) {
+func (as *authSession) initAuthServer(ctx context.Context) {
 	mux := http.NewServeMux()
-	mux.Handle("/host", as.AuthStateHandler(
+	mux.Handle("/callback", as.AuthStateHandler(
 		as.AuthorizationCodeHandler(as.OAuthTokenExchangeHandler(ctx))))
 
 	mux.HandleFunc("/complete", as.AuthCompleteHandler)
@@ -128,7 +131,7 @@ func (as *AuthSession) initAuthServer(ctx context.Context) {
 	}
 }
 
-func (as *AuthSession) startAuthenticationServer(ctx context.Context) {
+func (as *authSession) startAuthenticationServer(ctx context.Context) {
 	go func() {
 		utils.Check(ctx.Err())
 		err := as.authSever.ListenAndServe()
