@@ -1,16 +1,16 @@
 package actions
 
-type CompliancePolicyStatusType int8
+type CompliancePolicyStatus int8
 
 const (
-	CompliancePolicyStatusTypeUnknown CompliancePolicyStatusType = iota
+	CompliancePolicyStatusTypeUnknown CompliancePolicyStatus = iota
 	CompliancePolicyStatusTypePending
 	CompliancePolicyStatusTypeNonCompliant
 	CompliancePolicyStatusTypeCompliant
 )
 
 var (
-	labelToCompliancePolicyStatusTypeMap = map[string]CompliancePolicyStatusType{
+	labelToCompliancePolicyStatusTypeMap = map[string]CompliancePolicyStatus{
 		"Unknown":      CompliancePolicyStatusTypeUnknown,
 		"Pending":      CompliancePolicyStatusTypePending,
 		"NonCompliant": CompliancePolicyStatusTypeNonCompliant,
@@ -18,6 +18,6 @@ var (
 	}
 )
 
-func (cpst *CompliancePolicyStatusType) UnmarshalJSON(data []byte) error {
+func (cpst *CompliancePolicyStatus) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, cpst, labelToCompliancePolicyStatusTypeMap)
 }
