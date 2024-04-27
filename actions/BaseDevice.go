@@ -53,11 +53,6 @@ type DataType struct {
 	// Boolean, Numeric, Text, DateTime, Enumerator, Date
 }
 
-type CompliancePolicyStatusType struct {
-	//TODO:ENUM
-	// Unknown, Pending, NonCompliant, Compliant
-}
-
 type ComplianceItemType struct {
 	//TODO:ENUM
 	// None, IsSecured, IsDeviceAdmin, NotWiped, IsEnabled, IsEnrolled
