@@ -23,16 +23,3 @@ type BaseDevice struct {
 	Platform               PlatformType               `json:"Platform"`
 	Manufacturer           string                     `json:"Manufacturer"`
 }
-
-type DeviceCustomAttribute struct {
-	Name  string   `json:"Name"`
-	Value string   `json:"Value"`
-	Type  DataType `json:"Type"`
-}
-
-// PlatformType
-
-type DataType struct {
-	//TODO:ENUM
-	// Boolean, Numeric, Text, DateTime, Enumerator, Date
-}
