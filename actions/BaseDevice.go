@@ -30,17 +30,6 @@ type DeviceCustomAttribute struct {
 	Type  DataType `json:"Type"`
 }
 
-type DeviceMode int
-
-const (
-	Unknown DeviceMode = iota
-	Disabled
-	UnenrollPendingUser
-	UnenrollPendingAdmin
-	UnenrolledByUser
-	UnenrolledByAdmin
-)
-
 // PlatformType
 
 type DataType struct {
