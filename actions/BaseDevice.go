@@ -1,48 +1,52 @@
 package actions
 
 type BaseDevice struct {
-	Kind                   DeviceType
-	CompliancePolicyStatus CompliancePolicyStatusType
-	ComplianceStatus       bool
-	ComplianceItems        []ComplianceItem
-	DeviceId               string
-	DeviceName             string
-	EnrollmentType         DeviceEnrollmentType
-	EnrollmentTime         string
-	Family                 DeviceFamilyType
-	HostName               string
-	IsAgentOnline          bool
-	MacAddress             string
-	BluetoothMAC           string
-	WifiMAC                string
-	Mode                   DeviceMode
-	Model                  string
-	OsVersion              string
-	Path                   string
-	ServerName             string
-	Platform               PlatformType
-	Manufacturer           string
-}
-
-func (bd *BaseDevice) Get() (*BaseDevice, error) {
-
+	Kind                   DeviceType                 `json:"Kind"`
+	CompliancePolicyStatus CompliancePolicyStatusType `json:"CompliancePolicyStatusType"`
+	ComplianceStatus       bool                       `json:"ComplianceStatus"`
+	ComplianceItems        []ComplianceItem           `json:"ComplianceItems"`
+	DeviceId               string                     `json:"DeviceId"`
+	DeviceName             string                     `json:"DeviceName"`
+	EnrollmentType         DeviceEnrollmentType       `json:"EnrollmentType"`
+	EnrollmentTime         string                     `json:"EnrollmentTime"`
+	Family                 DeviceFamilyType           `json:"Family"`
+	HostName               string                     `json:"HostName"`
+	IsAgentOnline          bool                       `json:"IsAgentOnline"`
+	MacAddress             string                     `json:"MacAddress"`
+	BluetoothMAC           string                     `json:"BluetoothMAC"`
+	WifiMAC                string                     `json:"WifiMAC"`
+	Mode                   DeviceMode                 `json:"Mode"`
+	Model                  string                     `json:"Model"`
+	OsVersion              string                     `json:"OsVersion"`
+	Path                   string                     `json:"Path"`
+	ServerName             string                     `json:"ServerName"`
+	Platform               PlatformType               `json:"Platform"`
+	Manufacturer           string                     `json:"Manufacturer"`
 }
 
 type ComplianceItem struct {
-	ComplianceType  ComplianceItemType
-	ComplianceValue bool
+	ComplianceType  ComplianceItemType `json:"ComplianceType"`
+	ComplianceValue bool               `json:"ComplianceValue"`
 }
 
 type DeviceCustomAttribute struct {
-	Name  string
-	Value string
-	Type  DataType
+	Name  string   `json:"Name"`
+	Value string   `json:"Value"`
+	Type  DataType `json:"Type"`
 }
 
-type DeviceMode struct {
-	//Unknown PlatformType
-	//  Active, Disabled, UnenrollPendingUser, UnenrollPendingAdmin, UnenrolledByUser, UnenrolledByAdmin
-}
+type DeviceMode int
+
+const (
+	Unknown DeviceMode = iota
+	Disabled
+	UnenrollPendingUser
+	UnenrollPendingAdmin
+	UnenrolledByUser
+	UnenrolledByAdmin
+)
+
+// PlatformType
 
 type DeviceType struct {
 	//TODO:ENUM
