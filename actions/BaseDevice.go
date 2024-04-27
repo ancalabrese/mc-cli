@@ -24,11 +24,6 @@ type BaseDevice struct {
 	Manufacturer           string                     `json:"Manufacturer"`
 }
 
-type ComplianceItem struct {
-	ComplianceType  ComplianceItemType `json:"ComplianceType"`
-	ComplianceValue bool               `json:"ComplianceValue"`
-}
-
 type DeviceCustomAttribute struct {
 	Name  string   `json:"Name"`
 	Value string   `json:"Value"`
@@ -51,11 +46,6 @@ const (
 type DataType struct {
 	//TODO:ENUM
 	// Boolean, Numeric, Text, DateTime, Enumerator, Date
-}
-
-type ComplianceItemType struct {
-	//TODO:ENUM
-	// None, IsSecured, IsDeviceAdmin, NotWiped, IsEnabled, IsEnrolled
 }
 
 type DeviceEnrollmentType struct {
