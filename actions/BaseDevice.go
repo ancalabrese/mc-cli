@@ -62,7 +62,10 @@ func Path(p string) GetDevicesRequestOptions {
 	}
 }
 
-func GetDevices(ctx context.Context, client http.Client, opts ...GetDevicesRequestOptions) ([]BaseDevice, error) {
+func GetDevices(ctx context.Context,
+	client http.Client,
+	opts ...GetDevicesRequestOptions) ([]*BaseDevice, error) {
+
 	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
 	utils.Check(err)
 
@@ -90,8 +93,34 @@ func GetDevices(ctx context.Context, client http.Client, opts ...GetDevicesReque
 	if err != nil {
 		return nil, err
 	}
-	devices := make([]BaseDevice, 0)
+	devices := make([]*BaseDevice, 0)
 	json.Unmarshal(b, &devices)
 
 	return devices, nil
+}
+
+func GetDeviceById(ctx context.Context, client http.Client, deviceId string) (*BaseDevice, error) {
+	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
+	utils.Check(err)
+
+	apiUrl := baseurl.JoinPath(endpointPath, deviceId)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl.String(), nil)
+	utils.Check(err)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	b := make([]byte, resp.ContentLength)
+	_, err = resp.Body.Read(b)
+	if err != nil {
+		return nil, err
+	}
+
+	device := &BaseDevice{}
+	json.Unmarshal(b, &device)
+
+	return device, nil
 }
