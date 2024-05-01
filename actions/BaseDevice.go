@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/ancalabrese/mc-cli/utils"
 )
@@ -32,10 +34,43 @@ type BaseDevice struct {
 	Manufacturer           string                 `json:"Manufacturer"`
 }
 
-const endpoint = "devices"
+const endpointPath = "devices"
 
-func GetDevices(ctx context.Context, client http.Client) ([]BaseDevice, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "", nil)
+type GetDevicesRequestOptions func() url.Values
+
+func Take(v int) GetDevicesRequestOptions {
+	return func() url.Values {
+		return url.Values{
+			"take": []string{strconv.Itoa(v)},
+		}
+	}
+}
+
+func Skip(v int) GetDevicesRequestOptions {
+	return func() url.Values {
+		return url.Values{
+			"skip": []string{strconv.Itoa(v)},
+		}
+	}
+}
+
+func GetDevices(ctx context.Context, client http.Client, opts ...GetDevicesRequestOptions) ([]BaseDevice, error) {
+	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
+	utils.Check(err)
+
+	apiUrl := baseurl.JoinPath(endpointPath)
+
+	queryParams := url.Values{}
+
+	for _, opt := range opts {
+		for k, values := range opt() {
+			queryParams[k] = append(queryParams[k], values...)
+		}
+	}
+
+	apiUrl.RawQuery = queryParams.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl.String(), nil)
 	utils.Check(err)
 
 	resp, err := client.Do(req)
@@ -51,8 +86,4 @@ func GetDevices(ctx context.Context, client http.Client) ([]BaseDevice, error) {
 	json.Unmarshal(b, &devices)
 
 	return devices, nil
-}
-
-func GetDeviceById(client http.Client) ([]BaseDevice, error) {
-	return nil, nil
 }
