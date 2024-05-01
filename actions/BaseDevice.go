@@ -124,3 +124,20 @@ func GetDeviceById(ctx context.Context, client http.Client, deviceId string) (*B
 
 	return device, nil
 }
+
+func DeleteDevice(ctx context.Context, client http.Client, deviceId string) error {
+	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
+	utils.Check(err)
+
+	apiUrl := baseurl.JoinPath(endpointPath, deviceId)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, apiUrl.String(), nil)
+	utils.Check(err)
+
+	_, err = client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
