@@ -54,6 +54,14 @@ func Skip(v int) GetDevicesRequestOptions {
 	}
 }
 
+func Path(p string) GetDevicesRequestOptions {
+	return func() url.Values {
+		return url.Values{
+			"path": []string{url.QueryEscape(url.QueryEscape(p))},
+		}
+	}
+}
+
 func GetDevices(ctx context.Context, client http.Client, opts ...GetDevicesRequestOptions) ([]BaseDevice, error) {
 	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
 	utils.Check(err)
