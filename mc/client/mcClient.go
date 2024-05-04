@@ -7,12 +7,12 @@ import (
 )
 
 type McClient struct {
-	Host               string
-	DisplayVersion     string
-	Version            int64
-	HttpClient         *http.Client
-	ApiBaseAddress     string
-	DevicesApiEndpoint func() string
+	Host            string
+	DisplayVersion  string
+	Version         int64
+	HttpClient      *http.Client
+	ApiBaseAddress  string
+	DevicesEndpoint string
 }
 
 const mcPath = "Mobicontrol"
@@ -26,20 +26,18 @@ func NewMcClient(host string, c *http.Client) (*McClient, error) {
 		return nil, fmt.Errorf("Couldn't create a valid client for MC: Invalid host name %s", host)
 	}
 
+	baseUrl := getApiAddress(host)
+
 	return &McClient{
-		Host:           host,
-		HttpClient:     c,
-		ApiBaseAddress: getApiAddress(host),
+		Host:            host,
+		HttpClient:      c,
+		ApiBaseAddress:  baseUrl,
+		DevicesEndpoint: getDevicesApiEndpoint(baseUrl),
 	}, nil
 }
 
-func (mcc *McClient) getDevicesApiEndpoint() string {
-	u, _ := url.Parse(mcc.ApiBaseAddress)
-
-	if mcc.Version == 0 || mcc.Version < MC_V14 {
-		return u.JoinPath(DEVICES_API_PATH).String()
-	}
-
+func getDevicesApiEndpoint(baseUrl string) string {
+	u, _ := url.Parse(baseUrl)
 	return u.JoinPath(DEVICES_SEARCH_PATH).String()
 }
 
