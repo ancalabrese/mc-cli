@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/ancalabrese/mc-cli/mc/client"
 	"github.com/ancalabrese/mc-cli/utils"
 )
 
@@ -63,13 +64,8 @@ func Path(p string) GetDevicesRequestOptions {
 }
 
 func GetDevices(ctx context.Context,
-	client http.Client,
+	client client.McClient,
 	opts ...GetDevicesRequestOptions) ([]*BaseDevice, error) {
-
-	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
-	utils.Check(err)
-
-	apiUrl := baseurl.JoinPath(endpointPath)
 
 	queryParams := url.Values{}
 
@@ -79,36 +75,38 @@ func GetDevices(ctx context.Context,
 		}
 	}
 
-	apiUrl.RawQuery = queryParams.Encode()
+	endpoint := *client.DevicesEndpoint
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl.String(), nil)
+	endpoint.RawQuery = queryParams.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
 	utils.Check(err)
 
-	resp, err := client.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+
 	b := make([]byte, resp.ContentLength)
 	_, err = resp.Body.Read(b)
 	if err != nil {
 		return nil, err
 	}
+
 	devices := make([]*BaseDevice, 0)
 	json.Unmarshal(b, &devices)
 
 	return devices, nil
 }
 
-func GetDeviceById(ctx context.Context, client http.Client, deviceId string) (*BaseDevice, error) {
-	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
+func GetDeviceById(ctx context.Context, client client.McClient, deviceId string) (*BaseDevice, error) {
+	devicesEndpoint := *client.DevicesEndpoint
+	endpoint := devicesEndpoint.JoinPath(deviceId)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
 	utils.Check(err)
 
-	apiUrl := baseurl.JoinPath(endpointPath, deviceId)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiUrl.String(), nil)
-	utils.Check(err)
-
-	resp, err := client.Do(req)
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -125,16 +123,14 @@ func GetDeviceById(ctx context.Context, client http.Client, deviceId string) (*B
 	return device, nil
 }
 
-func DeleteDevice(ctx context.Context, client http.Client, deviceId string) error {
-	baseurl, err := url.Parse("s001234.mobicontrolcloud.com")
+func DeleteDevice(ctx context.Context, client client.McClient, deviceId string) error {
+	devicesEndpoint := *client.DevicesEndpoint
+	endpoint := devicesEndpoint.JoinPath(deviceId)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, endpoint.String(), nil)
 	utils.Check(err)
 
-	apiUrl := baseurl.JoinPath(endpointPath, deviceId)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, apiUrl.String(), nil)
-	utils.Check(err)
-
-	_, err = client.Do(req)
+	_, err = client.HttpClient.Do(req)
 	if err != nil {
 		return err
 	}

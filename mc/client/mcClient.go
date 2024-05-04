@@ -11,8 +11,8 @@ type McClient struct {
 	DisplayVersion  string
 	Version         int64
 	HttpClient      *http.Client
-	ApiBaseAddress  string
-	DevicesEndpoint string
+	ApiBaseAddress  *url.URL
+	DevicesEndpoint *url.URL
 }
 
 const mcPath = "Mobicontrol"
@@ -36,14 +36,13 @@ func NewMcClient(host string, c *http.Client) (*McClient, error) {
 	}, nil
 }
 
-func getDevicesApiEndpoint(baseUrl string) string {
-	u, _ := url.Parse(baseUrl)
-	return u.JoinPath(DEVICES_SEARCH_PATH).String()
+func getDevicesApiEndpoint(baseUrl *url.URL) *url.URL {
+	return baseUrl.JoinPath(DEVICES_SEARCH_PATH)
 }
 
-func getApiAddress(host string) string {
+func getApiAddress(host string) *url.URL {
 	u, _ := url.Parse("https://" + host)
-	return u.JoinPath(mcPath, apiPath).String()
+	return u.JoinPath(mcPath, apiPath)
 }
 
 func isValidHostName(h string) bool {
