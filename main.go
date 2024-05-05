@@ -11,13 +11,6 @@ import (
 
 func main() {
 	// ctx := context.Background()
-	// loggerOptions := &hclog.LoggerOptions{
-	// 	Name:  "mc-cli",
-	// 	Level: hclog.Debug,
-	// }
-
-	// log := hclog.New(loggerOptions)
-
 	cmd.Execute()
 
 	// c := config.NewConfig()

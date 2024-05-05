@@ -30,7 +30,7 @@ type AuthConfig struct {
 
 func NewAuthConfig() *AuthConfig {
 	return &AuthConfig{
-		keyringService: "mcUtility",
+		keyringService: "mc-cli",
 	}
 }
 

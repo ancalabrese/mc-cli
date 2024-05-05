@@ -8,6 +8,7 @@ var LoginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "log the CLI into Mobicontrol",
 	Run: func(cmd *cobra.Command, args []string) {
+		println(secret)
 	},
 }
 
