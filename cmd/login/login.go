@@ -1,7 +1,6 @@
 package login
 
 import (
-	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -39,9 +38,4 @@ func init() {
 	LoginCmd.MarkFlagRequired("clientId")
 	LoginCmd.MarkFlagRequired("secret")
 	LoginCmd.MarkFlagRequired("host")
-}
-
-func Execute() {
-	err := LoginCmd.Execute()
-	utils.Check(err)
 }
