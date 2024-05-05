@@ -1,10 +1,12 @@
 package login
 
 import (
+	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )
 
-var LoginCmd = &cobra.Command{
+var hostname, clientId, secret string
+var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "log the CLI into Mobicontrol",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -12,31 +14,31 @@ var LoginCmd = &cobra.Command{
 	},
 }
 
-var hostname, clientId, secret string
-
-func init() {
-	LoginCmd.Flags().StringVarP(
+func NewLoginCmd(l hclog.Logger) *cobra.Command {
+	loginCmd.Flags().StringVarP(
 		&clientId,
 		"clientId",
 		"c",
 		"",
 		"add your Mobicontrol API client ID (required)")
 
-	LoginCmd.Flags().StringVarP(
+	loginCmd.Flags().StringVarP(
 		&secret,
 		"secret",
 		"s",
 		"",
 		"add your Mobicontrol API client secret (required)")
 
-	LoginCmd.Flags().StringVarP(
+	loginCmd.Flags().StringVarP(
 		&hostname,
 		"host",
 		"n",
 		"",
 		"add your Mobicontrol server host name, ie: s0000.mobicontrolcloud.com (required)")
 
-	LoginCmd.MarkFlagRequired("clientId")
-	LoginCmd.MarkFlagRequired("secret")
-	LoginCmd.MarkFlagRequired("host")
+	loginCmd.MarkFlagRequired("clientId")
+	loginCmd.MarkFlagRequired("secret")
+	loginCmd.MarkFlagRequired("host")
+
+	return loginCmd
 }
