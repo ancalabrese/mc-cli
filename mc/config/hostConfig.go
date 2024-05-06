@@ -2,7 +2,6 @@ package config
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,8 +18,6 @@ const (
 	McSecretKey      = "MC_SECRET"
 	McCallbackUriKey = "MC_CALLBACK_URI"
 )
-
-var AuthNotInitializedError = errors.New("AuthConfig not initialized")
 
 type Host struct {
 	HostName       string         `yaml:"host"`
@@ -40,10 +37,6 @@ func NewHost(c *Config) *Host {
 }
 
 func (ac *Host) Write() error {
-	if !ac.isInitialized() {
-		return AuthNotInitializedError
-	}
-
 	err := keyring.Set(ac.keyringService, ac.ClientId, ac.ClientSecret)
 
 	os.MkdirAll(filepath.Dir(ac.c.Location), os.FileMode(0755))
@@ -75,8 +68,4 @@ func (ac *Host) Load() error {
 	}
 	ac.ClientSecret = secret
 	return nil
-}
-
-func (ac *Host) isInitialized() bool {
-	return ac.HostName == "" || ac.ClientId == "" || ac.ClientSecret == "" || ac.CallbackURL == ""
 }
