@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ancalabrese/mc-cli/cmd/login"
+	"github.com/ancalabrese/mc-cli/mc/config"
 	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
@@ -27,7 +28,8 @@ func init() {
 
 	l := hclog.New(loggerOptions)
 
-	root.AddCommand(login.NewLoginCmd(l))
+	c := config.NewConfig(l)
+	root.AddCommand(login.NewLoginCmd(c, l))
 }
 
 func Execute() {
