@@ -20,6 +20,7 @@ const (
 )
 
 type Host struct {
+	Configuration  `yaml:"-"`
 	HostName       string         `yaml:"host"`
 	ClientId       string         `yaml:"clientId"`
 	ClientSecret   string         `yaml:"-"`

@@ -34,31 +34,16 @@ type authSession struct {
 	Logger                    hclog.Logger
 }
 
-func NewAuthSession(c *config.Config, l hclog.Logger) (*authSession, error) {
-	addr, err := c.Authentication.Get(config.McHostKey)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to retrieve auth address: %w", err)
-	}
-
-	clientId, err := c.Authentication.Get(config.McClientIdKey)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to retrieve client id: %w", err)
-	}
-
-	clientSecret, err := c.Authentication.Get(config.McSecretKey)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to retrieve client secret : %w", err)
-	}
-
-	callbackUrl, err := c.Authentication.Get(config.McCallbackUriKey)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to retrieve auth callback url: %w", err)
-	}
+func NewAuthSession(ctx context.Context, c *config.Config, l hclog.Logger) error {
+	addr := c.Host.HostName
+	clientId := c.Host.ClientId
+	clientSecret := c.Host.ClientSecret
+	callbackUrl := c.Host.CallbackURL
 
 	mcAuthUrl, err := url.JoinPath(addr, oauthPath, authorizationPath)
 	mcTokenUrl, err := url.JoinPath(addr, apiPrefixUrlPath, tokenUrlPath)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	as := &authSession{
@@ -75,15 +60,12 @@ func NewAuthSession(c *config.Config, l hclog.Logger) (*authSession, error) {
 			},
 		},
 	}
-	return as, nil
+	return as.login(ctx)
 }
 
-func Login(ctx context.Context, c *config.Config, l hclog.Logger) error {
+func (as *authSession) login(ctx context.Context) error {
 	authContext, cancel := context.WithCancel(ctx)
 	defer cancel()
-
-	as, err := NewAuthSession(c, l)
-	utils.Check(err)
 
 	as.initAuthServer(authContext)
 

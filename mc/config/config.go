@@ -21,9 +21,9 @@ const CONFIG_PATH = "mc-cli"
 
 // Config reppresents a persistent configuration
 type Config struct {
-	Location       string        `yaml:"configFile"`
-	Authentication Configuration `yaml:"-"`
-	l              hclog.Logger
+	Location string `yaml:"configFile"`
+	Host     *Host  `yaml:"-"`
+	l        hclog.Logger
 }
 
 func NewConfig(l hclog.Logger) *Config {
@@ -31,7 +31,7 @@ func NewConfig(l hclog.Logger) *Config {
 		Location: getDefaultConfigFilePath(),
 		l:        l,
 	}
-	c.Authentication = NewHost(c)
+	c.Host = NewHost(c)
 
 	if err := c.Load(); err != nil {
 		c.l.Debug("Error loading config", "err", err, "location", c.Location)
@@ -60,7 +60,7 @@ func (c *Config) Write() error {
 	if err = cc.Encode(fp, c, codec.YAML); err != nil {
 		return err
 	}
-	return c.Authentication.Write()
+	return c.Host.Write()
 }
 
 func (c *Config) Load() error {
@@ -75,7 +75,7 @@ func (c *Config) Load() error {
 		return err
 	}
 
-	if err = c.Authentication.Load(); err != nil {
+	if err = c.Host.Load(); err != nil {
 		return err
 	}
 
