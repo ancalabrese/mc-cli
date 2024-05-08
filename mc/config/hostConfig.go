@@ -21,10 +21,10 @@ const (
 
 type Host struct {
 	Configuration  `yaml:"-"`
-	HostName       string         `yaml:"host"`
-	ClientId       string         `yaml:"clientId"`
+	HostName       string         `yaml:"host,omitempty"`
+	ClientId       string         `yaml:"clientId,omitempty"`
 	ClientSecret   string         `yaml:"-"`
-	CallbackURL    string         `yaml:"callbackURL"`
+	CallbackURL    string         `yaml:"callbackURL,omitempty"`
 	keyringService string         `yaml:"-"`
 	stdinScanner   *bufio.Scanner `yaml:"-"`
 	c              *Config        `yaml:"-"`

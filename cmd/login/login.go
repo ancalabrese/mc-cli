@@ -30,6 +30,9 @@ func NewLoginCmd(c *config.Config, l hclog.Logger) *cobra.Command {
 				c.Host.ClientSecret, _ = cmd.Flags().GetString("secret")
 				c.Host.HostName, _ = cmd.Flags().GetString("host")
 				c.Host.CallbackURL, _ = cmd.Flags().GetString("callback")
+				if err := c.Write(); err != nil {
+					return err
+				}
 			}
 
 			return auth.NewAuthSession(cmd.Context(), c, l)

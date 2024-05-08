@@ -50,7 +50,7 @@ func NewConfig(l hclog.Logger) *Config {
 
 func (c *Config) Write() error {
 	os.MkdirAll(filepath.Dir(c.Location), os.FileMode(0755))
-	fp, err := os.OpenFile(c.Location, os.O_CREATE|os.O_WRONLY, os.FileMode(0644))
+	fp, err := os.OpenFile(c.Location, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(0644))
 	if err != nil {
 		return fmt.Errorf("Couldn't write config file: %w", err)
 	}
@@ -60,7 +60,13 @@ func (c *Config) Write() error {
 	if err = cc.Encode(fp, c, codec.YAML); err != nil {
 		return err
 	}
-	return c.Host.Write()
+
+	err = c.Host.Write()
+	if err != nil {
+		return fmt.Errorf("Couldn't write config file: %w", err)
+	}
+
+	return nil
 }
 
 func (c *Config) Load() error {
