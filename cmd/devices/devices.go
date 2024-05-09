@@ -16,12 +16,13 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 		Short: "Manage your corporate devices",
 		Long:  "Access your Mobicontrol devices information, run actions, check device policies and more.",
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			return fmt.Errorf("Method not implemented yet.")
 		},
 	}
 
 	devicesCmd.LocalFlags().IntVarP(&take, "take", "t", 150, "the number of devices to be returned, after skipping over the 'skip' count")
-	devicesCmd.LocalFlags().IntVarP(&skip, "skip", "s", 0, "input the first X (count) devices that should not be returne")
+	devicesCmd.LocalFlags().IntVarP(&skip, "skip", "s", 0, "input the first X (count) devices that should not be returned")
 
 	devicesCmd.LocalFlags().StringVarP(&path, "path", "p", "", "the path of the parent device group. ie. '\\\\My Company\\BYOD'")
 	return devicesCmd
