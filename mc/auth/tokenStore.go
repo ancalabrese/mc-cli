@@ -31,6 +31,9 @@ func (kts *KeyringTokenStore) Get(clientId string) (*oauth2.Token, error) {
 
 func (kts *KeyringTokenStore) Save(clientId string, t *oauth2.Token) error {
 	err := keyring.Set("mc-cli", clientId, t.RefreshToken)
-	kts.l.Error("KeyringStore", "failed to get access token", err)
-	return err
+	if err != nil {
+		kts.l.Error("KeyringStore", "failed to get access token", err)
+		return err
+	}
+	return nil
 }

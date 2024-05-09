@@ -11,7 +11,7 @@ func (as *authSession) AuthorizationCodeHandler(next http.Handler) http.Handler 
 			return
 		}
 		as.authorizationCode = c
-		as.Logger.Debug("AuthorizationCodeHandler: Authorization code ok")
+		as.Logger.Debug("AuthorizationCodeHandler: Authorization code received")
 		next.ServeHTTP(w, r)
 	})
 }

@@ -17,6 +17,7 @@ const (
 	oauthPath         = "oauth"
 	authorizationPath = "authorize"
 	tokenUrlPath      = "token"
+	apiPrefixPath     = "Mobicontrol"
 	apiPrefixUrlPath  = "api"
 )
 
@@ -40,15 +41,16 @@ func NewAuthSession(ctx context.Context, c *config.Config, l hclog.Logger) error
 	clientSecret := c.Host.ClientSecret
 	callbackUrl := c.Host.CallbackURL
 
-	mcAuthUrl, err := url.JoinPath(addr, oauthPath, authorizationPath)
-	mcTokenUrl, err := url.JoinPath(addr, apiPrefixUrlPath, tokenUrlPath)
+	mcAuthUrl, err := url.JoinPath(addr, apiPrefixPath, oauthPath, authorizationPath)
+	mcTokenUrl, err := url.JoinPath(addr, apiPrefixPath, apiPrefixUrlPath, tokenUrlPath)
 	if err != nil {
 		return err
 	}
 
 	as := &authSession{
-		Logger:     l,
-		tokenStore: &KeyringTokenStore{},
+		Logger:                    l,
+		tokenStore:                &KeyringTokenStore{},
+		authorizationCompleteChan: make(chan *oauth2.Token),
 		oauthConfig: &oauth2.Config{
 			ClientID:     clientId,
 			ClientSecret: clientSecret,
@@ -56,7 +58,7 @@ func NewAuthSession(ctx context.Context, c *config.Config, l hclog.Logger) error
 			Endpoint: oauth2.Endpoint{
 				AuthURL:   mcAuthUrl,
 				TokenURL:  mcTokenUrl,
-				AuthStyle: oauth2.AuthStyleInParams,
+				AuthStyle: oauth2.AuthStyleInHeader,
 			},
 		},
 	}
@@ -77,6 +79,7 @@ func (as *authSession) login(ctx context.Context) error {
 	}
 
 	as.Token = <-as.authorizationCompleteChan
+	cancel()
 	return nil
 }
 
@@ -101,7 +104,7 @@ func (as *authSession) initAuthServer(ctx context.Context) {
 	mux.Handle("/callback", as.AuthStateHandler(
 		as.AuthorizationCodeHandler(as.OAuthTokenExchangeHandler(ctx))))
 
-	mux.HandleFunc("/complete", as.AuthCompleteHandler)
+	mux.Handle("/complete", as.AuthCompleteHandler())
 
 	as.authSever = &http.Server{
 		Addr:           "localhost:8080",
