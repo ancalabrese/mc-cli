@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/ancalabrese/mc-cli/cmd/devices"
 	"github.com/ancalabrese/mc-cli/cmd/login"
 	"github.com/ancalabrese/mc-cli/mc/config"
 	"github.com/ancalabrese/mc-cli/utils"
@@ -29,7 +30,7 @@ func init() {
 	l := hclog.New(loggerOptions)
 
 	c := config.NewConfig(l)
-	root.AddCommand(login.NewLoginCmd(c, l))
+	root.AddCommand(login.NewLoginCmd(c, l), devices.NewDevicesCommand(c, l))
 }
 
 func Execute() {
