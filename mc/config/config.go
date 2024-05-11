@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/ancalabrese/mc-cli/codec"
+	"github.com/ancalabrese/mc-cli/mc/storage"
 	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"
@@ -22,29 +23,32 @@ const CONFIG_PATH = "mc-cli"
 // Config reppresents a persistent configuration
 type Config struct {
 	Location string `yaml:"configFile"`
-	Host     *Host  `yaml:"-"`
-	l        hclog.Logger
+	Api      struct {
+		HostName     string `yaml:"host,omitempty"`
+		ClientId     string `yaml:"clientId,omitempty"`
+		ClientSecret string `yaml:"-"`
+		CallbackURL  string `yaml:"callbackURL,omitempty"`
+	} `yaml:"api"`
+
+	l           hclog.Logger           `yaml:"-"`
+	secretStore storage.ApiSecretStore `yaml:"-"`
 }
 
 func NewConfig(l hclog.Logger) *Config {
 	c := &Config{
-		Location: getDefaultConfigFilePath(),
-		l:        l,
+		Location:    getDefaultConfigFilePath(),
+		l:           l,
+		secretStore: *storage.NewApiSecretStore(l),
 	}
-	c.Host = NewHost(c)
 
 	if err := c.Load(); err != nil {
-		c.l.Debug("Error loading config", "err", err, "location", c.Location)
+		c.l.Debug("Error loading config", "err", err)
 		c.l.Debug("Writing config file", "location", c.Location)
 		err := c.Write()
 		if err != nil {
 			c.l.Error("Config init failed", "err", err)
 		}
-	} else {
-		err = c.Load()
-		utils.Check(err)
 	}
-
 	return c
 }
 
@@ -60,10 +64,9 @@ func (c *Config) Write() error {
 	if err = cc.Encode(fp, c, codec.YAML); err != nil {
 		return err
 	}
-
-	err = c.Host.Write()
+	err = c.secretStore.SaveApiSecret(c.Api.ClientId, c.Api.ClientSecret)
 	if err != nil {
-		return fmt.Errorf("Couldn't write config file: %w", err)
+		return err
 	}
 
 	return nil
@@ -81,10 +84,12 @@ func (c *Config) Load() error {
 		return err
 	}
 
-	if err = c.Host.Load(); err != nil {
+	secret, err := c.secretStore.GetApiSecret(c.Api.ClientId)
+	if err != nil {
 		return err
 	}
 
+	c.Api.ClientSecret = secret
 	return nil
 }
 

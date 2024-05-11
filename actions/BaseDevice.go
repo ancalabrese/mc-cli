@@ -57,6 +57,10 @@ func Skip(v int) GetDevicesRequestOptions {
 
 func Path(p string) GetDevicesRequestOptions {
 	return func() url.Values {
+		if p == "" {
+			return url.Values{}
+		}
+
 		return url.Values{
 			"path": []string{url.QueryEscape(url.QueryEscape(p))},
 		}
@@ -64,7 +68,7 @@ func Path(p string) GetDevicesRequestOptions {
 }
 
 func GetDevices(ctx context.Context,
-	client client.McClient,
+	client *client.McClient,
 	opts ...GetDevicesRequestOptions) ([]*BaseDevice, error) {
 
 	queryParams := url.Values{}

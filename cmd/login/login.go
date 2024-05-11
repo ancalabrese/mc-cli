@@ -17,25 +17,25 @@ func NewLoginCmd(c *config.Config, l hclog.Logger) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c := config.NewConfig(l)
 
-			if cmd.Flags().NFlag() == 0 && (c.Host.ClientId == "" ||
-				c.Host.ClientSecret == "" ||
-				c.Host.HostName == "" ||
-				c.Host.CallbackURL == "") {
-				// no args, check config file
-				return fmt.Errorf("Authentication info required")
+			if cmd.Flags().NFlag() == 0 && (c.Api.ClientId == "" || c.Api.ClientSecret == "" ||
+				c.Api.HostName == "" || c.Api.CallbackURL == "") {
+				return fmt.Errorf("API client info required.")
 			}
 
 			if cmd.Flags().NFlag() > 0 {
-				c.Host.ClientId, _ = cmd.Flags().GetString("clientId")
-				c.Host.ClientSecret, _ = cmd.Flags().GetString("secret")
-				c.Host.HostName, _ = cmd.Flags().GetString("host")
-				c.Host.CallbackURL, _ = cmd.Flags().GetString("callback")
-				if err := c.Host.Write(); err != nil {
-					return err
-				}
+				c.Api.ClientId, _ = cmd.Flags().GetString("clientId")
+				c.Api.ClientSecret, _ = cmd.Flags().GetString("secret")
+				c.Api.HostName, _ = cmd.Flags().GetString("host")
+				c.Api.CallbackURL, _ = cmd.Flags().GetString("callback")
+				c.Write()
 			}
 
-			return auth.NewAuthSession(cmd.Context(), c, l)
+			_, err := auth.NewAuthSession(cmd.Context(), c, l)
+			if err != nil {
+				return err
+			}
+
+			return c.Write()
 		},
 	}
 
