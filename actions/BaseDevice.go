@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/ancalabrese/mc-cli/mc/client"
-	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/hashicorp/go-hclog"
 )
 
@@ -153,16 +152,27 @@ func GetDeviceById(ctx context.Context, client *client.McClient, deviceId string
 	return device, nil
 }
 
-func DeleteDevice(ctx context.Context, client client.McClient, deviceId string) error {
+func DeleteDevice(ctx context.Context, client client.McClient, deviceId string, log hclog.Logger) error {
+	l := log.Named("DeleteDevice")
 	devicesEndpoint := *client.DevicesEndpoint
 	endpoint := devicesEndpoint.JoinPath(deviceId)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, endpoint.String(), nil)
-	utils.Check(err)
+	if err != nil {
+		return fmt.Errorf("failed to create device request: %w", err)
+	}
 
-	_, err = client.HttpClient.Do(req)
+	l.Debug("Executing HTTP request", "url", req.URL.String())
+	resp, err := client.HttpClient.Do(req)
 	if err != nil {
 		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		// TODO: handle different type of responses
+		l.Error("Server returned non OK code", "code", resp.StatusCode)
+		return fmt.Errorf("Server returned non OK code: %d", resp.StatusCode)
 	}
 
 	return nil
