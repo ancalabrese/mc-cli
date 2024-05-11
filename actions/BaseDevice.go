@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -96,16 +97,22 @@ func GetDevices(ctx context.Context,
 	if err != nil {
 		return nil, fmt.Errorf("HTTP error while requesting devices: %w", err)
 	}
+	defer resp.Body.Close()
 
-	b := make([]byte, 0, resp.ContentLength)
-	_, err = resp.Body.Read(b)
+	if resp.StatusCode != http.StatusOK {
+		// TODO: handle different type of responses
+	}
+
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	devices := make([]*BaseDevice, 0)
-	json.Unmarshal(b, &devices)
-
+	err = json.Unmarshal(b, &devices)
+	if err != nil {
+		return nil, err
+	}
 	return devices, nil
 }
 
