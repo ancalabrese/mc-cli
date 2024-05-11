@@ -40,9 +40,9 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 		return nil, err
 	}
 
-	ss := storage.NewKeyRingStore(l)
+	ss := storage.NewApiSecretStore(l)
 
-	refreshToken, err := ss.Get("r_token" + c.Api.ClientId)
+	refreshToken, err := ss.GetRefreshAccessToken(c.Api.ClientId)
 	if err != nil {
 		return nil, err
 	}
