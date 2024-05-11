@@ -3,12 +3,14 @@ package actions
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/ancalabrese/mc-cli/mc/client"
 	"github.com/ancalabrese/mc-cli/utils"
+	"github.com/hashicorp/go-hclog"
 )
 
 type BaseDevice struct {
@@ -69,8 +71,9 @@ func Path(p string) GetDevicesRequestOptions {
 
 func GetDevices(ctx context.Context,
 	client *client.McClient,
+	l hclog.Logger,
 	opts ...GetDevicesRequestOptions) ([]*BaseDevice, error) {
-
+	l = l.Named("GetDevices")
 	queryParams := url.Values{}
 
 	for _, opt := range opts {
@@ -84,11 +87,14 @@ func GetDevices(ctx context.Context,
 	endpoint.RawQuery = queryParams.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
-	utils.Check(err)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create device request: %w", err)
+	}
 
+	l.Debug("Executing HTTP request", "url", req.URL.String())
 	resp, err := client.HttpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("HTTP error while requesting devices: %w", err)
 	}
 
 	b := make([]byte, resp.ContentLength)

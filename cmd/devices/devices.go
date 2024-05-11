@@ -1,8 +1,6 @@
 package devices
 
 import (
-	"fmt"
-
 	"github.com/ancalabrese/mc-cli/actions"
 	"github.com/ancalabrese/mc-cli/mc/client"
 	"github.com/ancalabrese/mc-cli/mc/config"
@@ -25,8 +23,16 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			actions.GetDevices(cmd.Context(), mcClient, t, s, p)
-			return fmt.Errorf("Method not implemented yet.")
+
+			devices, err := actions.GetDevices(cmd.Context(), mcClient, l, t, s, p)
+			if err != nil {
+				return err
+			}
+
+			for _, d := range devices {
+				println(d.DeviceName)
+			}
+			return nil
 		},
 	}
 
