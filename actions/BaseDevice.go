@@ -97,7 +97,7 @@ func GetDevices(ctx context.Context,
 		return nil, fmt.Errorf("HTTP error while requesting devices: %w", err)
 	}
 
-	b := make([]byte, resp.ContentLength)
+	b := make([]byte, 0, resp.ContentLength)
 	_, err = resp.Body.Read(b)
 	if err != nil {
 		return nil, err

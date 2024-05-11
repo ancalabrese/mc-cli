@@ -66,7 +66,7 @@ func ConstructMcApiAddress(host string) *url.URL {
 }
 
 func getDevicesApiEndpoint(baseUrl *url.URL) *url.URL {
-	return baseUrl.JoinPath(DEVICES_SEARCH_PATH)
+	return baseUrl.JoinPath(DEVICES_API_PATH)
 }
 
 func isValidHostName(h string) bool {
