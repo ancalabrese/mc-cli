@@ -117,27 +117,38 @@ func GetDevices(ctx context.Context,
 	return devices, nil
 }
 
-func GetDeviceById(ctx context.Context, client client.McClient, deviceId string) (*BaseDevice, error) {
+func GetDeviceById(ctx context.Context, client *client.McClient, deviceId string, l hclog.Logger) (*BaseDevice, error) {
 	devicesEndpoint := *client.DevicesEndpoint
 	endpoint := devicesEndpoint.JoinPath(deviceId)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
-	utils.Check(err)
-
-	resp, err := client.HttpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create device request: %w", err)
 	}
 
-	b := make([]byte, resp.ContentLength)
-	_, err = resp.Body.Read(b)
+	l.Debug("Executing HTTP request", "url", req.URL.String())
+	resp, err := client.HttpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP error while requesting device info: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		// TODO: handle different type of responses
+		l.Error("Server returned non OK code", "code", resp.StatusCode)
+		return nil, fmt.Errorf("Server returned non OK code: %d", resp.StatusCode)
+	}
+
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	device := &BaseDevice{}
-	json.Unmarshal(b, &device)
-
+	err = json.Unmarshal(b, &device)
+	if err != nil {
+		return nil, err
+	}
 	return device, nil
 }
 
