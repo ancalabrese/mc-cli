@@ -19,5 +19,5 @@ var (
 )
 
 func (cpst *CompliancePolicyStatus) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, cpst, labelToCompliancePolicyStatusTypeMap)
+	return unmarshallCustomType(data, cpst, labelToCompliancePolicyStatusTypeMap, CompliancePolicyStatusTypeUnknown)
 }

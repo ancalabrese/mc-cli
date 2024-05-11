@@ -221,5 +221,5 @@ var (
 )
 
 func (pt *PlatformType) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, pt, platformLabelToTypeMap)
+	return unmarshallCustomType(data, pt, platformLabelToTypeMap, UnknownPlatform)
 }

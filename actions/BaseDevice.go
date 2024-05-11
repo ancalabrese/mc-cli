@@ -84,7 +84,6 @@ func GetDevices(ctx context.Context,
 	}
 
 	endpoint := *client.DevicesEndpoint
-
 	endpoint.RawQuery = queryParams.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
@@ -101,6 +100,8 @@ func GetDevices(ctx context.Context,
 
 	if resp.StatusCode != http.StatusOK {
 		// TODO: handle different type of responses
+		l.Error("Server returned non OK code", "code", resp.StatusCode)
+		return nil, fmt.Errorf("Server returned non OK code: %d", resp.StatusCode)
 	}
 
 	b, err := io.ReadAll(resp.Body)

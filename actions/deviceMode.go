@@ -23,5 +23,5 @@ var (
 )
 
 func (dm *DeviceMode) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, dm, labelToDeviceEnrollmentTypeMap)
+	return unmarshallCustomType(data, dm, labelToDeviceModeMap, DeviceModeUnknown)
 }

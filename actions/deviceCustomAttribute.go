@@ -15,6 +15,7 @@ const (
 	DataTypeDateTime
 	DataTypeEnumerator
 	DataTypeDate
+	UnknownDataType
 )
 
 var (
@@ -25,9 +26,10 @@ var (
 		"ateTime":    DataTypeDateTime,
 		"Enumerator": DataTypeEnumerator,
 		"Date":       DataTypeDate,
+		"Unknown":    UnknownDataType,
 	}
 )
 
-func (dca *DeviceCustomAttribute) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, dca, labelToDataTypeMap)
+func (dca *DataType) UnmarshalJSON(data []byte) error {
+	return unmarshallCustomType(data, dca, labelToDataTypeMap, UnknownDataType)
 }

@@ -14,6 +14,7 @@ const (
 	ComplianceItemTypeNotWiped
 	ComplianceItemTypeIsEnabled
 	ComplianceItemTypeIsEnrolled
+	UnknownComplianceItemType
 )
 
 var (
@@ -24,9 +25,10 @@ var (
 		"NotWiped":      ComplianceItemTypeNotWiped,
 		"IsEnabled":     ComplianceItemTypeIsEnabled,
 		"IsEnrolled":    ComplianceItemTypeIsEnrolled,
+		"Unknown":       UnknownComplianceItemType,
 	}
 )
 
 func (cit *ComplianceItemType) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, cit, labelToComplianceItemMap)
+	return unmarshallCustomType(data, cit, labelToComplianceItemMap, UnknownComplianceItemType)
 }

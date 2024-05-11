@@ -45,5 +45,5 @@ var (
 )
 
 func (dt *DeviceType) UnmarshalJSON(data []byte) error {
-	return unmarshallCustomType(data, dt, labelToDeviceType)
+	return unmarshallCustomType(data, dt, labelToDeviceType, DeviceTypeUnknown)
 }
