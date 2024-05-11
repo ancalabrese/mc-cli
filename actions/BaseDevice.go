@@ -72,9 +72,9 @@ func Path(p string) GetDevicesRequestOptions {
 
 func GetDevices(ctx context.Context,
 	client *client.McClient,
-	l hclog.Logger,
+	logger hclog.Logger,
 	opts ...GetDevicesRequestOptions) ([]*BaseDevice, error) {
-	l = l.Named("GetDevices")
+	l := logger.Named("GetDevices")
 	queryParams := url.Values{}
 
 	for _, opt := range opts {
@@ -117,7 +117,8 @@ func GetDevices(ctx context.Context,
 	return devices, nil
 }
 
-func GetDeviceById(ctx context.Context, client *client.McClient, deviceId string, l hclog.Logger) (*BaseDevice, error) {
+func GetDeviceById(ctx context.Context, client *client.McClient, deviceId string, logger hclog.Logger) (*BaseDevice, error) {
+	l := logger.Named("GetDeviceById")
 	devicesEndpoint := *client.DevicesEndpoint
 	endpoint := devicesEndpoint.JoinPath(deviceId)
 
