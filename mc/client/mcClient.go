@@ -70,10 +70,6 @@ func getDevicesApiEndpoint(baseUrl *url.URL) *url.URL {
 }
 
 func isValidHostName(h string) bool {
-	u, err := url.Parse("https://" + h)
-	if err != nil {
-		return false
-	}
-
-	return u.Hostname() == h
+	_, err := url.Parse(h)
+	return err == nil
 }

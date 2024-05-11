@@ -69,6 +69,7 @@ func (c *Config) Write() error {
 		return err
 	}
 
+	c.l.Debug("config saved", "location", c.Location)
 	return nil
 }
 
