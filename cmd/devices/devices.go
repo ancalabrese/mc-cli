@@ -52,5 +52,6 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 
 	devicesCmd.Flags().StringVarP(&deviceId, "deviceId", "i", "", "the ID of the device you want to check")
 
+	devicesCmd.AddCommand(NewDeviceDeleteCmd(c, l))
 	return devicesCmd
 }

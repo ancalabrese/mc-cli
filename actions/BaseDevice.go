@@ -152,7 +152,7 @@ func GetDeviceById(ctx context.Context, client *client.McClient, deviceId string
 	return device, nil
 }
 
-func DeleteDevice(ctx context.Context, client client.McClient, deviceId string, log hclog.Logger) error {
+func DeleteDevice(ctx context.Context, client *client.McClient, deviceId string, log hclog.Logger) error {
 	l := log.Named("DeleteDevice")
 	devicesEndpoint := *client.DevicesEndpoint
 	endpoint := devicesEndpoint.JoinPath(deviceId)
@@ -169,7 +169,7 @@ func DeleteDevice(ctx context.Context, client client.McClient, deviceId string, 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 		// TODO: handle different type of responses
 		l.Error("Server returned non OK code", "code", resp.StatusCode)
 		return fmt.Errorf("Server returned non OK code: %d", resp.StatusCode)
