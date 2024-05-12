@@ -12,6 +12,7 @@ const successHtmlPagePath = "./authComplete.html"
 func (as *authSession) OAuthTokenExchangeHandler(ctx context.Context) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			as.Logger.Debug("Exchanding authorization code for access token.")
 			t, err := as.oauthConfig.Exchange(ctx, as.authorizationCode)
 			if err != nil {
 				as.Logger.Error("Token exchange failed", "err", err)
