@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/ancalabrese/mc-cli/codec"
-	"github.com/ancalabrese/mc-cli/mc/storage"
+	"github.com/ancalabrese/mc-cli/storage"
 	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"

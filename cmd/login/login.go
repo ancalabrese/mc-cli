@@ -3,8 +3,8 @@ package login
 import (
 	"fmt"
 
-	"github.com/ancalabrese/mc-cli/mc/auth"
-	"github.com/ancalabrese/mc-cli/mc/config"
+	"github.com/ancalabrese/mc-cli/auth"
+	"github.com/ancalabrese/mc-cli/config"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )

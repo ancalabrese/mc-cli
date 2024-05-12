@@ -5,7 +5,7 @@ import (
 
 	"github.com/ancalabrese/mc-cli/cmd/devices"
 	"github.com/ancalabrese/mc-cli/cmd/login"
-	"github.com/ancalabrese/mc-cli/mc/config"
+	"github.com/ancalabrese/mc-cli/config"
 	"github.com/ancalabrese/mc-cli/utils"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"

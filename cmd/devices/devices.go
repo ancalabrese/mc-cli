@@ -3,9 +3,9 @@ package devices
 import (
 	"fmt"
 
-	"github.com/ancalabrese/mc-cli/mc/actions"
-	"github.com/ancalabrese/mc-cli/mc/client"
-	"github.com/ancalabrese/mc-cli/mc/config"
+	"github.com/ancalabrese/mc-cli/actions"
+	"github.com/ancalabrese/mc-cli/client"
+	"github.com/ancalabrese/mc-cli/config"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )

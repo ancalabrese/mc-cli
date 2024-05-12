@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/ancalabrese/mc-cli/mc/client"
+	"github.com/ancalabrese/mc-cli/client"
 	"github.com/hashicorp/go-hclog"
 )
 

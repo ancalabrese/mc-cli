@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ancalabrese/mc-cli/mc/auth"
-	"github.com/ancalabrese/mc-cli/mc/config"
-	"github.com/ancalabrese/mc-cli/mc/storage"
+	"github.com/ancalabrese/mc-cli/auth"
+	"github.com/ancalabrese/mc-cli/config"
+	"github.com/ancalabrese/mc-cli/storage"
 	"github.com/hashicorp/go-hclog"
 	"golang.org/x/oauth2"
 )
