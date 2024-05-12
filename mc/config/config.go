@@ -30,15 +30,15 @@ type Config struct {
 		CallbackURL  string `yaml:"callbackURL,omitempty"`
 	} `yaml:"api"`
 
-	l           hclog.Logger           `yaml:"-"`
-	secretStore storage.ApiSecretStore `yaml:"-"`
+	l           hclog.Logger            `yaml:"-"`
+	secretStore *storage.ApiSecretStore `yaml:"-"`
 }
 
 func NewConfig(l hclog.Logger) *Config {
 	c := &Config{
 		Location:    getDefaultConfigFilePath(),
 		l:           l,
-		secretStore: *storage.NewApiSecretStore(l),
+		secretStore: storage.NewApiSecretStore(l),
 	}
 
 	if err := c.Load(); err != nil {

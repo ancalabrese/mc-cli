@@ -19,6 +19,7 @@ func (as *authSession) OAuthTokenExchangeHandler(ctx context.Context) http.Handl
 				return
 			}
 			as.Logger.Debug("Access token received")
+			as.apiSecretStore.SaveAccessToken(as.oauthConfig.ClientID, t.AccessToken)
 			as.apiSecretStore.SaveRefreshAccessToken(as.oauthConfig.ClientID, t.RefreshToken)
 
 			pageData, err := os.ReadFile(successHtmlPagePath)

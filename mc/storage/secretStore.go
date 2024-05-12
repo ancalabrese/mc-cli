@@ -56,6 +56,10 @@ func (ass *ApiSecretStore) SaveApiSecret(clientId string, secret string) error {
 	return ass.store.Save(clientId, secret)
 }
 
+func (ass *ApiSecretStore) SaveAccessToken(clientId string, accessToken string) error {
+	return ass.store.Save("token_"+clientId, accessToken)
+}
+
 func (ass *ApiSecretStore) SaveRefreshAccessToken(clientId string, rt string) error {
 	return ass.store.Save("r_token_"+clientId, rt)
 }
@@ -66,4 +70,8 @@ func (ass *ApiSecretStore) GetApiSecret(clientId string) (string, error) {
 
 func (ass *ApiSecretStore) GetRefreshAccessToken(clientId string) (string, error) {
 	return ass.store.Get("r_token_" + clientId)
+}
+
+func (ass *ApiSecretStore) GetAccessToken(clientId string) (string, error) {
+	return ass.store.Get("token_" + clientId)
 }

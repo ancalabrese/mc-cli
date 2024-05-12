@@ -47,7 +47,15 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 		return nil, err
 	}
 
-	t := &oauth2.Token{RefreshToken: refreshToken}
+	accessToken, err := ss.GetAccessToken(c.Api.ClientId)
+	if err != nil {
+		l.Error("Failed to retrieve access token. Using refresh token instead", "err:", err)
+	}
+
+	t := &oauth2.Token{
+		RefreshToken: refreshToken,
+		AccessToken:  accessToken,
+	}
 
 	return &McClient{
 		Host:            c.Api.HostName,
