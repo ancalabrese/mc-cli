@@ -1,7 +1,7 @@
 package devices
 
 import (
-	"github.com/ancalabrese/mc-cli/actions"
+	"github.com/ancalabrese/mc-cli/mc/actions"
 	"github.com/ancalabrese/mc-cli/mc/client"
 	"github.com/ancalabrese/mc-cli/mc/config"
 	"github.com/hashicorp/go-hclog"
