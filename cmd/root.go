@@ -14,7 +14,7 @@ import (
 var root = &cobra.Command{
 	Use:   "mc",
 	Short: "mc is a CLI for SOTI MobiControl",
-	Long: "A very fast CLI tool that allows an IT Admin to quickly check and manage " +
+	Long: "A very fast CLI tool that allows  IT Admins to quickly check and manage " +
 		"corporate devices enrolled into SOTI MobiControl.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no commands specified")
@@ -28,8 +28,8 @@ func init() {
 	}
 
 	l := hclog.New(loggerOptions)
-
 	c := config.NewConfig(l)
+
 	root.AddCommand(login.NewLoginCmd(c, l), devices.NewDevicesCommand(c, l))
 }
 
