@@ -1,6 +1,8 @@
 package devices
 
 import (
+	"fmt"
+
 	"github.com/ancalabrese/mc-cli/mc/actions"
 	"github.com/ancalabrese/mc-cli/mc/client"
 	"github.com/ancalabrese/mc-cli/mc/config"
@@ -21,26 +23,29 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				return err
 			}
 
+			devices := []*actions.BaseDevice{}
+
 			if deviceId != "" {
 				d, err := actions.GetDeviceById(cmd.Context(), mcClient, deviceId, l)
 				if err != nil {
 					return err
 				}
-				println(d.DeviceName)
-				return nil
-			}
-			t := actions.Take(take)
-			s := actions.Skip(skip)
-			p := actions.Path(path)
+				devices = append(devices, d)
+			} else {
+				t := actions.Take(take)
+				s := actions.Skip(skip)
+				p := actions.Path(path)
 
-			devices, err := actions.GetDevices(cmd.Context(), mcClient, l, t, s, p)
-			if err != nil {
-				return err
+				devices, err = actions.GetDevices(cmd.Context(), mcClient, l, t, s, p)
+				if err != nil {
+					return err
+				}
 			}
 
-			for _, d := range devices {
-				println(d.DeviceName)
+			for i, d := range devices {
+				fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
 			}
+
 			return nil
 		},
 	}

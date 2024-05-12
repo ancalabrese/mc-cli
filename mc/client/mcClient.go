@@ -47,14 +47,16 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 		return nil, err
 	}
 
-	accessToken, err := ss.GetAccessToken(c.Api.ClientId)
+	//TODO: oauth2 library refreshes the token only if we set expire. For now always use refresh
+	// token to get a new one for every new execution
+	/* accessToken, err := ss.GetAccessToken(c.Api.ClientId)
 	if err != nil {
 		l.Error("Failed to retrieve access token. Using refresh token instead", "err:", err)
-	}
+	} */
 
 	t := &oauth2.Token{
 		RefreshToken: refreshToken,
-		AccessToken:  accessToken,
+		// AccessToken:  accessToken,
 	}
 
 	return &McClient{
