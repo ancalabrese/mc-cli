@@ -42,14 +42,21 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				}
 			}
 
-			if len(devices) == 1 {
-				fmt.Printf("%+v", devices[0])
-			} else {
-				for i, d := range devices {
-					fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
-				}
+			for i, d := range devices {
+				fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
 			}
 
+			for ok := true; ok; {
+				var userChoice int
+				fmt.Println("Enter the device # to check details:")
+				fmt.Scanln(&userChoice)
+				if userChoice-1 > len(devices) {
+					fmt.Println("Invalid # selected.")
+					continue
+				}
+				fmt.Printf("%+v", devices[userChoice-1])
+				break
+			}
 			return nil
 		},
 	}
