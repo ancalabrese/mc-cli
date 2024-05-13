@@ -14,7 +14,7 @@ func unmarshallCustomType[T comparable](data []byte, result *T, labelToValueMap 
 
 	value, ok := labelToValueMap[label]
 	if !ok {
-		fmt.Errorf("Error unmarshalling %s, type: %T", label, result)
+		fmt.Printf("Error unmarshalling %s, type: %T\n", label, result)
 		value = unsupportedValue
 	}
 	result = &value

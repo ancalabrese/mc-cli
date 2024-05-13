@@ -42,8 +42,12 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				}
 			}
 
-			for i, d := range devices {
-				fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
+			if len(devices) == 1 {
+				fmt.Printf("%+v", devices[0])
+			} else {
+				for i, d := range devices {
+					fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
+				}
 			}
 
 			return nil
