@@ -1,4 +1,4 @@
-package actions
+package data
 
 // DeviceProfile rappresents a profile that is associated with a device
 type DeviceProfile struct {

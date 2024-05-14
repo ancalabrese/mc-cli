@@ -21,6 +21,7 @@ type McClient struct {
 	HttpClient      *http.Client
 	ApiBaseAddress  *url.URL
 	DevicesEndpoint *url.URL
+	l               hclog.Logger
 }
 
 const mcPath = "Mobicontrol"
@@ -40,6 +41,7 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 		return nil, err
 	}
 
+	logger := l.Named("McClient")
 	ss := storage.NewApiSecretStore(l)
 
 	refreshToken, err := ss.GetRefreshAccessToken(c.Api.ClientId)
@@ -64,6 +66,7 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 		HttpClient:      oauth2Config.Client(ctx, t),
 		ApiBaseAddress:  baseUrl,
 		DevicesEndpoint: getDevicesApiEndpoint(baseUrl),
+		l:               logger,
 	}, nil
 }
 

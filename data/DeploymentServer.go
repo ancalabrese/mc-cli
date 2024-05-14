@@ -1,4 +1,4 @@
-package actions 
+package data
 
 type DeploymentServer struct {
 	Name                       string

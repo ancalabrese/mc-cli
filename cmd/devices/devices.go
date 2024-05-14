@@ -3,9 +3,9 @@ package devices
 import (
 	"fmt"
 
-	"github.com/ancalabrese/mc-cli/actions"
 	"github.com/ancalabrese/mc-cli/client"
 	"github.com/ancalabrese/mc-cli/config"
+	"github.com/ancalabrese/mc-cli/data"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )
@@ -23,20 +23,20 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				return err
 			}
 
-			devices := []*actions.BaseDevice{}
+			devices := []*data.BaseDevice{}
 
 			if deviceId != "" {
-				d, err := actions.GetDeviceById(cmd.Context(), mcClient, deviceId, l)
+				d, err := mcClient.GetDeviceById(cmd.Context(), deviceId)
 				if err != nil {
 					return err
 				}
 				devices = append(devices, d)
 			} else {
-				t := actions.Take(take)
-				s := actions.Skip(skip)
-				p := actions.Path(path)
+				t := mcClient.Take(take)
+				s := mcClient.Skip(skip)
+				p := mcClient.Path(path)
 
-				devices, err = actions.GetDevices(cmd.Context(), mcClient, l, t, s, p)
+				devices, err = mcClient.GetDevices(cmd.Context(), t, s, p)
 				if err != nil {
 					return err
 				}

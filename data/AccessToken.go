@@ -1,4 +1,4 @@
-package actions 
+package data
 
 type AccessToken struct {
 	Token        string

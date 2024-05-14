@@ -1,7 +1,6 @@
 package devices
 
 import (
-	"github.com/ancalabrese/mc-cli/actions"
 	"github.com/ancalabrese/mc-cli/client"
 	"github.com/ancalabrese/mc-cli/config"
 	"github.com/hashicorp/go-hclog"
@@ -21,7 +20,7 @@ func NewDeviceDeleteCmd(c *config.Config, logger hclog.Logger) *cobra.Command {
 				return err
 			}
 
-			err = actions.DeleteDevice(cmd.Context(), mcClient, deviceId, logger)
+			err = mcClient.DeleteDevice(cmd.Context(), deviceId)
 			return err
 		},
 	}

@@ -1,4 +1,4 @@
-package actions
+package data
 
 type SystemCertificate struct {
 	UsageType           SystemCertificateType

@@ -1,4 +1,4 @@
-package actions
+package data
 
 type DeviceType int8
 

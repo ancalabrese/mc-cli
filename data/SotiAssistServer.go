@@ -1,4 +1,4 @@
-package actions 
+package data
 
 type SotiAssistServer struct {
 	Name             string
@@ -6,3 +6,4 @@ type SotiAssistServer struct {
 	ServerUrl        string
 	RemoteControlUri string
 }
+

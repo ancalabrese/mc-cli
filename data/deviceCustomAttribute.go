@@ -1,4 +1,4 @@
-package actions
+package data
 
 type DeviceCustomAttribute struct {
 	Name  string   `json:"Name"`
