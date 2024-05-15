@@ -2,10 +2,12 @@ package devices
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ancalabrese/mc-cli/client"
 	"github.com/ancalabrese/mc-cli/config"
 	"github.com/ancalabrese/mc-cli/data"
+	"github.com/ancalabrese/mc-cli/screen"
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 )
@@ -54,7 +56,12 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 					fmt.Println("Invalid # selected.")
 					continue
 				}
-				fmt.Printf("%+v", devices[userChoice-1])
+
+				p := screen.NewPrinter(os.Stdout)
+				err = p.PrettyPrint(devices[userChoice-1])
+				if err != nil {
+					return err
+				}
 				break
 			}
 			return nil
