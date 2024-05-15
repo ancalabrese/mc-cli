@@ -1,7 +1,6 @@
 package screen
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -19,7 +18,7 @@ type Printer struct {
 
 func NewPrinter(stdout io.Writer) *Printer {
 	return &Printer{
-		stdout: bufio.NewWriter(stdout),
+		stdout: stdout,
 	}
 }
 
@@ -47,8 +46,7 @@ func (p *Printer) PrettyPrint(v interface{}) error {
 	}
 
 	for i, k := range labelsToValues {
-		s := fmt.Sprintf("%s:\t%s\n", i, k)
-		p.stdout.Write([]byte(s))
+		fmt.Fprintf(p.stdout, "%s:\t%s\n", i, k)
 	}
 
 	return nil
