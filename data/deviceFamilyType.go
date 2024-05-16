@@ -30,8 +30,26 @@ var (
 		"WindowsRuntime": DeviceFamilyTypeWindowsRuntime,
 		"Linux":          DeviceFamilyTypeLinux,
 	}
+
+	deviceFamilyTypeToLabelMap = map[DeviceFamilyType]string{
+		DeviceFamilyTypeUnknown:        "Unknown",
+		DeviceFamilyTypeWindowsCE:      "WindowsCE",
+		DeviceFamilyTypeApple:          "Apple",
+		DeviceFamilyTypeWindowsDesktop: "WindowsDesktop",
+		DeviceFamilyTypeAndroidPlus:    "AndroidPlus",
+		DeviceFamilyTypeScanner:        "Scanner",
+		DeviceFamilyTypeWindowsPhone:   "WindowsPhone",
+		DeviceFamilyTypeBlackberry:     "Blackberry",
+		DeviceFamilyTypePrinter:        "Printer",
+		DeviceFamilyTypeWindowsRuntime: "WindowsRuntime",
+		DeviceFamilyTypeLinux:          "Linux",
+	}
 )
 
 func (dft *DeviceFamilyType) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, dft, labelToDeviceFamilyTypeMap, DeviceFamilyTypeUnknown)
+}
+
+func (dft DeviceFamilyType) String() string {
+	return deviceFamilyTypeToLabelMap[dft]
 }

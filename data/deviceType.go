@@ -42,8 +42,31 @@ var (
 		"WindowsXtHub":         DeviceTypeWindowsXtHub,
 		"Unknown":              DeviceTypeUnknown,
 	}
+	deviceTypeToLabel = map[DeviceType]string{
+		DeviceTypeAndroidForWork:       "AndroidForWork",
+		DeviceTypeAndroidElm:           "AndroidElm",
+		DeviceTypeAndroidKnox:          "AndroidKnox",
+		DeviceTypeAndroidPlus:          "AndroidPlus",
+		DeviceTypeAndroidGeneric:       "AndroidGeneric",
+		DeviceTypeIos:                  "Ios",
+		DeviceTypeMac:                  "Mac",
+		DeviceTypeWindowsCE:            "WindowsCE",
+		DeviceTypeWindowsDesktop:       "WindowsDesktop",
+		DeviceTypeWindowsDesktopLegacy: "WindowsDesktopLegacy",
+		DeviceTypeWindowsPhone:         "WindowsPhone",
+		DeviceTypeWindowsRuntime:       "WindowsRuntime",
+		DeviceTypeZebraPrinter:         "ZebraPrinter",
+		DeviceTypeLinux:                "Linux",
+		DeviceTypeWindowsHoloLens:      "WindowsHoloLens",
+		DeviceTypeWindowsXtHub:         "WindowsXtHub",
+		DeviceTypeUnknown:              "Unknown",
+	}
 )
 
 func (dt *DeviceType) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, dt, labelToDeviceType, DeviceTypeUnknown)
+}
+
+func (dt DeviceType) String() string {
+	return deviceTypeToLabel[dt]
 }

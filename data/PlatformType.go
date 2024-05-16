@@ -75,7 +75,7 @@ const (
 )
 
 var (
-	PlatformTypeLabelMap = map[PlatformType]string{
+	platformTypeToLabelMap = map[PlatformType]string{
 		UnknownPlatform:                "Unkown",
 		CESimulator:                    "CESimulator",
 		DOS:                            "DOS",
@@ -222,4 +222,8 @@ var (
 
 func (pt *PlatformType) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, pt, platformLabelToTypeMap, UnknownPlatform)
+}
+
+func (pt PlatformType) String() string {
+	return platformTypeToLabelMap[pt]
 }

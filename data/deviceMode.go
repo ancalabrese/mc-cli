@@ -20,8 +20,19 @@ var (
 		"UnenrolledByUser":     DeviceModeUnenrolledByUser,
 		"UnenrolledByAdmin":    DeviceModeUnenrolledByAdmin,
 	}
+	deviceModeToLabelMap = map[DeviceMode]string{
+		DeviceModeUnknown:              "Unknown",
+		DeviceModeActive:               "Active",
+		DeviceModeUnenrollPendingAdmin: "UnenrollPendingAdmin",
+		DeviceModeUnenrolledByUser:     "UnenrolledByUser",
+		DeviceModeUnenrolledByAdmin:    "UnenrolledByAdmin",
+	}
 )
 
 func (dm *DeviceMode) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, dm, labelToDeviceModeMap, DeviceModeUnknown)
+}
+
+func (dm DeviceMode) String() string {
+	return deviceModeToLabelMap[dm]
 }

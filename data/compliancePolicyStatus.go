@@ -16,8 +16,19 @@ var (
 		"NonCompliant": CompliancePolicyStatusTypeNonCompliant,
 		"Compliant":    CompliancePolicyStatusTypeCompliant,
 	}
+
+	compliancePolicyStatusToLabelMap = map[CompliancePolicyStatus]string{
+		CompliancePolicyStatusTypeUnknown:      "Unknown",
+		CompliancePolicyStatusTypePending:      "Pending",
+		CompliancePolicyStatusTypeNonCompliant: "NonCompliant",
+		CompliancePolicyStatusTypeCompliant:    "Compliant",
+	}
 )
 
 func (cpst *CompliancePolicyStatus) UnmarshalJSON(data []byte) error {
 	return unmarshallCustomType(data, cpst, labelToCompliancePolicyStatusTypeMap, CompliancePolicyStatusTypeUnknown)
+}
+
+func (cpst CompliancePolicyStatus) String() string {
+	return compliancePolicyStatusToLabelMap[cpst]
 }
