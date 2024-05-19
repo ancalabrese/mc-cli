@@ -1,8 +1,11 @@
 package devices
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/ancalabrese/mc-cli/client"
 	"github.com/ancalabrese/mc-cli/config"
@@ -48,17 +51,24 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
 			}
 
+			r := bufio.NewReader(os.Stdin)
+
 			for ok := true; ok; {
-				var userChoice int
 				fmt.Println("Enter the device # to check details:")
-				fmt.Scanln(&userChoice)
-				if userChoice-1 > len(devices) {
-					fmt.Println("Invalid # selected.")
+				input, err := r.ReadString('\n')
+				if err != nil {
+					return err
+				}
+				input = strings.TrimSuffix(input, "\n")
+
+				selection, err := strconv.Atoi(input)
+				if err != nil || selection-1 < 0 || selection-1 > len(devices) {
+					fmt.Println("Enter a valid number.")
 					continue
 				}
 
 				p := screen.NewPrinter(os.Stdout)
-				err = p.PrettyPrint(devices[userChoice-1])
+				err = p.PrettyPrint(devices[selection-1])
 				if err != nil {
 					return err
 				}

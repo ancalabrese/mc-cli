@@ -11,3 +11,13 @@ func Check(err error) {
 		os.Exit(1)
 	}
 }
+
+func FlushStdin() {
+	var discard string
+	for {
+		n, _ := fmt.Scanln(&discard)
+		if n == 0 {
+			break
+		}
+	}
+}
