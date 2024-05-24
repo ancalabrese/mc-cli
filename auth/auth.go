@@ -124,9 +124,10 @@ func (as *authSession) initAuthServer(ctx context.Context) {
 
 func (as *authSession) startAuthenticationServer(ctx context.Context) {
 	go func() {
-		utils.Check(ctx.Err())
-		err := as.authServer.ListenAndServe()
-		utils.Check(err)
+		if ctx.Err() != nil {
+			return
+		}
+		_ = as.authServer.ListenAndServe()
 	}()
 
 	<-ctx.Done()
