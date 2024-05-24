@@ -11,29 +11,38 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var root = &cobra.Command{
-	Use:   "mc",
-	Short: "mc is a CLI for SOTI MobiControl",
-	Long: "A very fast CLI tool that allows  IT Admins to quickly check and manage " +
-		"corporate devices enrolled into SOTI MobiControl.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return fmt.Errorf("no commands specified")
-	},
-}
+var (
+	isVerbose bool = false
+	l              = hclog.New(&hclog.LoggerOptions{
+		Name:  "mc",
+		Level: hclog.Error,
+	})
+	c = config.NewConfig(l)
+
+	rootCmd = &cobra.Command{
+		Use:   "mc",
+		Short: "mc is a CLI for SOTI MobiControl",
+		Long: "A very fast CLI tool that allows  IT Admins to quickly check and manage " +
+			"corporate devices enrolled into SOTI MobiControl.",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if isVerbose {
+				l.SetLevel(hclog.Debug)
+			}
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return fmt.Errorf("no commands specified")
+		},
+	}
+)
 
 func init() {
-	loggerOptions := &hclog.LoggerOptions{
-		Name:  "mc",
-		Level: hclog.Debug,
-	}
+	rootCmd.PersistentFlags().BoolVarP(&isVerbose, "verbose", "v", false, "enable verbose logging")
 
-	l := hclog.New(loggerOptions)
-	c := config.NewConfig(l)
-
-	root.AddCommand(login.NewLoginCmd(c, l), devices.NewDevicesCommand(c, l))
+	rootCmd.AddCommand(login.NewLoginCmd(c, l), devices.NewDevicesCommand(c, l))
 }
 
 func Execute() {
-	err := root.Execute()
+	err := rootCmd.Execute()
 	utils.Check(err)
 }
