@@ -83,7 +83,7 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 
 	devicesCmd.Flags().StringVarP(&path, "path", "p", "", "the path of the parent device group. ie. '\\\\My Company\\BYOD'")
 
-	devicesCmd.Flags().StringVarP(&deviceId, "deviceId", "i", "", "the ID of the device you want to check")
+	devicesCmd.Flags().StringVarP(&deviceId, "id", "i", "", "the ID of the device you want to check")
 
 	devicesCmd.AddCommand(NewDeviceDeleteCmd(c, l))
 	return devicesCmd
