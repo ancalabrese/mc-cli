@@ -1,5 +1,8 @@
 build:
-	go build -o bin/mc main.go
+	go build -o bin/mc mc.go
 
 run:
-	go run main.go
+	go run mc.go
+
+install:
+	go install mc.go
