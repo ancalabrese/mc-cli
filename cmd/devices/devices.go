@@ -47,32 +47,39 @@ func NewDevicesCommand(c *config.Config, l hclog.Logger) *cobra.Command {
 				}
 			}
 
-			for i, d := range devices {
-				fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
+			if len(devices) == 0 {
+				println("Feels so empty here! Start enrolling devices!")
 			}
 
-			r := bufio.NewReader(os.Stdin)
-
-			for ok := true; ok; {
-				fmt.Println("Enter the device # to check details:")
-				input, err := r.ReadString('\n')
-				if err != nil {
-					return err
-				}
-				input = strings.TrimSuffix(input, "\n")
-
-				selection, err := strconv.Atoi(input)
-				if err != nil || selection-1 < 0 || selection-1 > len(devices) {
-					fmt.Println("Enter a valid number.")
-					continue
+			var selection = 1
+			if len(devices) > 1 {
+				for i, d := range devices {
+					fmt.Printf("#[%d] > %s - ID: %s\n", i+1, d.DeviceName, d.DeviceId)
 				}
 
-				p := screen.NewPrinter(os.Stdout)
-				err = p.PrettyPrint(devices[selection-1])
-				if err != nil {
-					return err
+				r := bufio.NewReader(os.Stdin)
+
+				for ok := true; ok; {
+					fmt.Println("Enter the device # to check details:")
+					input, err := r.ReadString('\n')
+					if err != nil {
+						return err
+					}
+					input = strings.TrimSuffix(input, "\n")
+
+					selection, err = strconv.Atoi(input)
+					if err != nil || selection-1 < 0 || selection-1 > len(devices) {
+						fmt.Println("Enter a valid number.")
+						continue
+					}
+					break
 				}
-				break
+			}
+
+			p := screen.NewPrinter(os.Stdout)
+			err = p.PrettyPrint(devices[selection-1])
+			if err != nil {
+				return err
 			}
 			return nil
 		},
