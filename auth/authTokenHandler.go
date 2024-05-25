@@ -16,7 +16,8 @@ func (as *authSession) OAuthTokenExchangeHandler(ctx context.Context) http.Handl
 			t, err := as.oauthConfig.Exchange(ctx, as.authorizationCode)
 			if err != nil {
 				as.Logger.Error("Token exchange failed", "err", err)
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(w, "couldn't retrieve access token", http.StatusBadRequest)
+				as.authorizationCompleteChan <- nil
 				return
 			}
 			as.Logger.Debug("Access token received")

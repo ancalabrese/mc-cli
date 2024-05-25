@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	url "net/url"
@@ -52,15 +53,17 @@ func NewAuthSession(ctx context.Context, c *config.Config, l hclog.Logger) (*oau
 }
 
 func GetOauth2Config(c *config.Config) (*oauth2.Config, error) {
-	mcAuthUrl, err := url.JoinPath(c.Api.HostName, apiPrefixPath, oauthPath, authorizationPath)
+
+	rootUrl, err := url.Parse(c.Api.HostName)
 	if err != nil {
 		return nil, err
+	}
+	if rootUrl.Scheme == "" {
+		rootUrl.Scheme = "https"
 	}
 
-	mcTokenUrl, err := url.JoinPath(c.Api.HostName, apiPrefixPath, apiPrefixUrlPath, tokenUrlPath)
-	if err != nil {
-		return nil, err
-	}
+	mcAuthUrl := rootUrl.JoinPath(apiPrefixPath, oauthPath, authorizationPath).String()
+	mcTokenUrl := rootUrl.JoinPath(apiPrefixPath, apiPrefixUrlPath, tokenUrlPath).String()
 
 	return &oauth2.Config{
 		ClientID:     c.Api.ClientId,
@@ -88,6 +91,9 @@ func (as *authSession) login(ctx context.Context) (*oauth2.Token, error) {
 	}
 
 	t := <-as.authorizationCompleteChan
+	if t == nil {
+		return nil, errors.New("an error occurred.")
+	}
 	return t, nil
 }
 
