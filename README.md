@@ -11,6 +11,9 @@ Mc-cli allows any IT-admin to manage corporate devices enrolled into SOTI Mobico
 - Lookup device by Id
 - Delete devices
 
+## Getting Started
+
+Find out more in this [blog post](https://medium.com/p/dfeb87dc7702)
 
 ## Usage/Examples
 
