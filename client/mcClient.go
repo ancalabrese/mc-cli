@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/ancalabrese/mc-cli/auth"
 	"github.com/ancalabrese/mc-cli/config"
@@ -71,10 +70,10 @@ func NewMcClient(ctx context.Context, c *config.Config, l hclog.Logger) (*McClie
 }
 
 func ConstructMcApiAddress(host string) *url.URL {
-	if !strings.HasPrefix(host, "https://") {
-		host = "https://" + host
-	}
 	u, _ := url.Parse(host)
+	if u.Scheme == "" {
+		u.Scheme = "https"
+	}
 	return u.JoinPath(mcPath, apiPath)
 }
 
